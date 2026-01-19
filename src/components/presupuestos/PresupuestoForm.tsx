@@ -19,6 +19,7 @@ import { formatCurrency } from "@/lib/formatters";
 import { ClienteSelector } from "@/components/presupuestos/ClienteSelector";
 import { ProductoSelector } from "@/components/presupuestos/ProductoSelector";
 import { SortableLineaItem } from "@/components/presupuestos/SortableLineaItem";
+import { LineaEditDialog } from "@/components/presupuestos/LineaEditDialog";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import type { Cliente } from "@/hooks/useClientes";
 import type { Tables } from "@/integrations/supabase/types";
@@ -93,6 +94,7 @@ export function PresupuestoForm({
   const [notas, setNotas] = useState(initialNotas);
   const [notasInternas, setNotasInternas] = useState(initialNotasInternas);
   const [showProductoSelector, setShowProductoSelector] = useState(false);
+  const [editingLinea, setEditingLinea] = useState<LineaLocal | null>(null);
   const [saving, setSaving] = useState(false);
   const [lineasToDelete, setLineasToDelete] = useState<string[]>([]);
 
@@ -137,6 +139,14 @@ export function PresupuestoForm({
       setLineasToDelete(prev => [...prev, id]);
     }
     setLineas(lineas.filter(l => l.id !== id));
+  };
+
+  const handleEditLinea = (linea: LineaLocal) => {
+    setEditingLinea(linea);
+  };
+
+  const handleSaveLinea = (updatedLinea: LineaLocal) => {
+    setLineas(lineas.map(l => l.id === updatedLinea.id ? updatedLinea : l));
   };
 
   const handleDragEnd = (event: DragEndEvent) => {
@@ -320,6 +330,7 @@ export function PresupuestoForm({
                       key={linea.id}
                       linea={linea}
                       onRemove={handleRemoveLinea}
+                      onEdit={handleEditLinea}
                     />
                   ))}
                 </div>
@@ -426,6 +437,14 @@ export function PresupuestoForm({
         open={showProductoSelector} 
         onClose={() => setShowProductoSelector(false)}
         onAdd={handleAddLinea}
+      />
+
+      {/* Line Edit Dialog */}
+      <LineaEditDialog
+        open={!!editingLinea}
+        linea={editingLinea}
+        onClose={() => setEditingLinea(null)}
+        onSave={handleSaveLinea}
       />
     </div>
   );
