@@ -28,11 +28,13 @@ interface LineaEditDialogProps {
 }
 
 export function LineaEditDialog({ open, linea, onClose, onSave }: LineaEditDialogProps) {
-  const [cantidad, setCantidad] = useState(1);
+  const [cantidadStr, setCantidadStr] = useState("1");
   const [tipoCantidad, setTipoCantidad] = useState("metros");
   const [descripcion, setDescripcion] = useState("");
 
   const { data: producto } = useProducto(linea?.producto_id || undefined);
+  
+  const cantidad = cantidadStr === '' ? 0 : Number(cantidadStr);
   
   const { data: precio, isLoading: loadingPrecio } = useCalcularPrecio(
     linea?.producto_id || undefined,
@@ -43,7 +45,7 @@ export function LineaEditDialog({ open, linea, onClose, onSave }: LineaEditDialo
   // Initialize values when linea changes
   useEffect(() => {
     if (linea) {
-      setCantidad(linea.cantidad);
+      setCantidadStr(String(linea.cantidad));
       setTipoCantidad(linea.tipo_cantidad);
       setDescripcion(linea.descripcion || "");
     }
@@ -102,8 +104,8 @@ export function LineaEditDialog({ open, linea, onClose, onSave }: LineaEditDialo
                 type="number"
                 min={0.1}
                 step={0.1}
-                value={cantidad}
-                onChange={e => setCantidad(Number(e.target.value))}
+                value={cantidadStr}
+                onChange={e => setCantidadStr(e.target.value)}
                 className="w-32"
               />
               <span className="text-muted-foreground">{getUnitLabel()}</span>

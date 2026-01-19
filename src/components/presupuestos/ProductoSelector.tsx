@@ -37,11 +37,13 @@ export function ProductoSelector({ open, onClose, onAdd }: ProductoSelectorProps
   const [search, setSearch] = useState("");
   const [categoriaId, setCategoriaId] = useState<string | null>(null);
   const [productoId, setProductoId] = useState<string | null>(null);
-  const [cantidad, setCantidad] = useState(1);
+  const [cantidadStr, setCantidadStr] = useState("1");
   const [tipoCantidad, setTipoCantidad] = useState("metros");
   const [descripcion, setDescripcion] = useState("");
 
   const productoSeleccionado = productos?.find(p => p.id === productoId);
+  
+  const cantidad = cantidadStr === '' ? 0 : Number(cantidadStr);
   
   const { data: precio, isLoading: loadingPrecio } = useCalcularPrecio(
     productoId || undefined,
@@ -55,7 +57,7 @@ export function ProductoSelector({ open, onClose, onAdd }: ProductoSelectorProps
       setSearch("");
       setCategoriaId(null);
       setProductoId(null);
-      setCantidad(1);
+      setCantidadStr("1");
       setTipoCantidad("metros");
       setDescripcion("");
     }
@@ -195,8 +197,8 @@ export function ProductoSelector({ open, onClose, onAdd }: ProductoSelectorProps
                     type="number"
                     min={0.1}
                     step={0.1}
-                    value={cantidad}
-                    onChange={e => setCantidad(Number(e.target.value))}
+                    value={cantidadStr}
+                    onChange={e => setCantidadStr(e.target.value)}
                     className="w-32"
                   />
                   <span className="text-muted-foreground">

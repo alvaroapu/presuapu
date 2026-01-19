@@ -14,7 +14,7 @@ interface PriceCalculatorProps {
 }
 
 export function PriceCalculator({ producto, onClose }: PriceCalculatorProps) {
-  const [cantidad, setCantidad] = useState(1);
+  const [cantidadStr, setCantidadStr] = useState("1");
   const [tipoCantidad, setTipoCantidad] = useState(() => {
     switch (producto.tipo_calculo) {
       case 'por_metro': return 'metros';
@@ -24,6 +24,8 @@ export function PriceCalculator({ producto, onClose }: PriceCalculatorProps) {
       default: return 'metros';
     }
   });
+
+  const cantidad = cantidadStr === '' ? 0 : Number(cantidadStr);
 
   const { data: precio, isLoading } = useCalcularPrecio(
     producto.id || undefined,
@@ -65,8 +67,8 @@ export function PriceCalculator({ producto, onClose }: PriceCalculatorProps) {
             type="number"
             min={0.1}
             step={0.1}
-            value={cantidad}
-            onChange={e => setCantidad(Number(e.target.value))}
+            value={cantidadStr}
+            onChange={e => setCantidadStr(e.target.value)}
             className="w-24 h-8 text-sm"
             onClick={(e) => e.stopPropagation()}
           />
