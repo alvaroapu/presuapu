@@ -3,6 +3,7 @@ import { supabase } from '@/integrations/supabase/client';
 import type { Tables, TablesInsert, TablesUpdate } from '@/integrations/supabase/types';
 
 export type Cliente = Tables<'clientes'>;
+
 export type ClienteConStats = {
   id: string | null;
   nombre: string | null;
@@ -64,9 +65,29 @@ export function useClientesConStats() {
   });
 }
 
-export function useCliente(id: string | undefined) {
+// Get a single client - from the regular table (for forms/selector)
+export function useCliente(id: string | null | undefined) {
   return useQuery({
     queryKey: ['cliente', id],
+    queryFn: async () => {
+      if (!id) return null;
+      const { data, error } = await supabase
+        .from('clientes')
+        .select('*')
+        .eq('id', id)
+        .single();
+      
+      if (error) throw error;
+      return data;
+    },
+    enabled: !!id
+  });
+}
+
+// Get a single client with stats - from the view (for detail page)
+export function useClienteConStats(id: string | undefined) {
+  return useQuery({
+    queryKey: ['cliente-stats', id],
     queryFn: async () => {
       if (!id) return null;
       const { data, error } = await supabase
