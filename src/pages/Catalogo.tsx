@@ -1,16 +1,16 @@
 import { Link } from "react-router-dom";
 import { Button } from "@/components/ui/button";
-import { Plus, Check, Wrench, Calculator } from "lucide-react";
+import { Plus, Check, Wrench, Calculator, ChevronDown } from "lucide-react";
 import { useProductos } from "@/hooks/useProductos";
 import { useCategorias } from "@/hooks/useCategorias";
 import { formatCurrency } from "@/lib/formatters";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@/components/ui/collapsible";
-import { ChevronDown } from "lucide-react";
 import { useState } from "react";
 import { Badge } from "@/components/ui/badge";
 import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip";
 import { PriceCalculator } from "@/components/catalogo/PriceCalculator";
+import { ImportExportProducts } from "@/components/catalogo/ImportExportProducts";
 
 export default function Catalogo() {
   const { data: productos, isLoading: loadingProductos } = useProductos();
@@ -62,12 +62,15 @@ export default function Catalogo() {
     <div className="space-y-6">
       <div className="flex items-center justify-between">
         <h1 className="text-3xl font-bold">Catálogo de Productos</h1>
-        <Button asChild>
-          <Link to="/catalogo/productos/nuevo">
-            <Plus className="w-4 h-4 mr-2" />
-            Nuevo Producto
-          </Link>
-        </Button>
+        <div className="flex items-center gap-2">
+          <ImportExportProducts productos={productos} />
+          <Button asChild>
+            <Link to="/catalogo/productos/nuevo">
+              <Plus className="w-4 h-4 mr-2" />
+              Nuevo Producto
+            </Link>
+          </Button>
+        </div>
       </div>
 
       <div className="space-y-4">
