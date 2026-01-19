@@ -86,6 +86,12 @@ export default function PresupuestoDetalle() {
               Editar
             </Link>
           </Button>
+          <Button variant="outline" asChild>
+            <Link to={`/presupuestos/${id}/duplicar`}>
+              <Copy className="w-4 h-4 mr-2" />
+              Duplicar
+            </Link>
+          </Button>
           {config && lineas && (
             <PDFDownloadButton 
               presupuesto={presupuesto} 

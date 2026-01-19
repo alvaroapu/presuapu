@@ -115,8 +115,10 @@ export default function Presupuestos() {
                         <Edit className="w-4 h-4 mr-2" /> Editar
                       </Link>
                     </DropdownMenuItem>
-                    <DropdownMenuItem>
-                      <Copy className="w-4 h-4 mr-2" /> Duplicar
+                    <DropdownMenuItem asChild>
+                      <Link to={`/presupuestos/${p.id}/duplicar`}>
+                        <Copy className="w-4 h-4 mr-2" /> Duplicar
+                      </Link>
                     </DropdownMenuItem>
                     <DropdownMenuItem asChild>
                       <Link to={`/presupuestos/${p.id}`}>

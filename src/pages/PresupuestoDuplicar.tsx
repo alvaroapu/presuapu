@@ -1,18 +1,19 @@
 import { useParams, useNavigate } from "react-router-dom";
-import { usePresupuesto, usePresupuestoLineas } from "@/hooks/usePresupuestos";
+import { usePresupuesto, usePresupuestoLineas, useGenerarNumeroPresupuesto } from "@/hooks/usePresupuestos";
 import { useCliente } from "@/hooks/useClientes";
 import { PresupuestoForm, LineaLocal } from "@/components/presupuestos/PresupuestoForm";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Button } from "@/components/ui/button";
 
-export default function PresupuestoEditar() {
+export default function PresupuestoDuplicar() {
   const { id } = useParams();
   const navigate = useNavigate();
   const { data: presupuesto, isLoading: loadingPresupuesto } = usePresupuesto(id);
   const { data: lineas, isLoading: loadingLineas } = usePresupuestoLineas(id);
   const { data: cliente, isLoading: loadingCliente } = useCliente(presupuesto?.cliente_id);
+  const { data: nuevoNumero, isLoading: loadingNumero } = useGenerarNumeroPresupuesto();
 
-  const isLoading = loadingPresupuesto || loadingLineas || loadingCliente;
+  const isLoading = loadingPresupuesto || loadingLineas || loadingCliente || loadingNumero;
 
   if (isLoading) {
     return (
@@ -24,7 +25,7 @@ export default function PresupuestoEditar() {
     );
   }
 
-  if (!presupuesto) {
+  if (!presupuesto || !nuevoNumero) {
     return (
       <div className="text-center py-12">
         <p className="text-muted-foreground">Presupuesto no encontrado</p>
@@ -35,9 +36,9 @@ export default function PresupuestoEditar() {
     );
   }
 
-  // Transform lines to local format
+  // Transform lines to local format with NEW UUIDs (for duplication)
   const initialLineas: LineaLocal[] = (lineas || []).map(l => ({
-    id: l.id,
+    id: crypto.randomUUID(), // New ID for duplicated lines
     producto_id: l.producto_id,
     producto_nombre: l.producto_nombre,
     producto_categoria: l.producto_categoria || '',
@@ -50,9 +51,8 @@ export default function PresupuestoEditar() {
 
   return (
     <PresupuestoForm 
-      mode="edit"
-      presupuestoId={id}
-      numero={presupuesto.numero}
+      mode="duplicate"
+      numero={nuevoNumero}
       initialCliente={cliente || null}
       initialLineas={initialLineas}
       initialDescuentoTipo={(presupuesto.descuento_tipo as 'porcentaje' | 'importe') || 'porcentaje'}

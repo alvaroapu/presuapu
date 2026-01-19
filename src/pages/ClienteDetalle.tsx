@@ -3,7 +3,7 @@ import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { ArrowLeft, Edit, Plus, Mail, Phone, MapPin, Building } from "lucide-react";
-import { useCliente } from "@/hooks/useClientes";
+import { useClienteConStats } from "@/hooks/useClientes";
 import { usePresupuestos } from "@/hooks/usePresupuestos";
 import { formatCurrency, formatDate, getEstadoColor, getEstadoLabel } from "@/lib/formatters";
 import { Skeleton } from "@/components/ui/skeleton";
@@ -11,7 +11,7 @@ import { Skeleton } from "@/components/ui/skeleton";
 export default function ClienteDetalle() {
   const { id } = useParams();
   const navigate = useNavigate();
-  const { data: cliente, isLoading } = useCliente(id);
+  const { data: cliente, isLoading } = useClienteConStats(id);
   const { data: presupuestos } = usePresupuestos({ clienteId: id });
 
   if (isLoading) {
