@@ -45,10 +45,11 @@ export default function Clientes() {
       </div>
 
       <div className="border rounded-lg">
-        <div className="grid grid-cols-[1fr_1fr_1fr_120px_140px] gap-4 p-4 border-b bg-muted/50 font-medium text-sm">
+        <div className="grid grid-cols-[1fr_1fr_1fr_140px_120px_140px] gap-4 p-4 border-b bg-muted/50 font-medium text-sm">
           <div>Nombre</div>
           <div>Empresa</div>
           <div>Email</div>
+          <div>Teléfono</div>
           <div className="text-right">Presupuestos</div>
           <div className="text-right">Facturación</div>
         </div>
@@ -66,11 +67,12 @@ export default function Clientes() {
             <Link
               key={c.id}
               to={`/clientes/${c.id}`}
-              className="grid grid-cols-[1fr_1fr_1fr_120px_140px] gap-4 p-4 border-b last:border-0 items-center hover:bg-muted/30"
+              className="grid grid-cols-[1fr_1fr_1fr_140px_120px_140px] gap-4 p-4 border-b last:border-0 items-center hover:bg-muted/30"
             >
               <div className="font-medium">{c.nombre}</div>
               <div className="text-muted-foreground">{c.nombre_comercial || '-'}</div>
               <div className="text-muted-foreground truncate">{c.email || '-'}</div>
+              <div className="text-muted-foreground">{c.telefono || '-'}</div>
               <div className="text-right">{c.total_presupuestos || 0}</div>
               <div className="text-right font-medium">{formatCurrency(c.facturacion_total || 0)}</div>
             </Link>
