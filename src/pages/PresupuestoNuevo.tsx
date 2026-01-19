@@ -5,16 +5,32 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { ArrowLeft, Plus, Trash2, GripVertical } from "lucide-react";
-import { useClientes } from "@/hooks/useClientes";
+import { ArrowLeft, Plus } from "lucide-react";
 import { useEmpresaConfig } from "@/hooks/useEmpresaConfig";
-import { useCreatePresupuesto, useGenerarNumeroPresupuesto, useCreatePresupuestoLinea, useRecalcularTotales } from "@/hooks/usePresupuestos";
+import { useCreatePresupuesto, useGenerarNumeroPresupuesto, useCreatePresupuestoLinea } from "@/hooks/usePresupuestos";
 import { useToast } from "@/hooks/use-toast";
 import { formatCurrency } from "@/lib/formatters";
 import { ClienteSelector } from "@/components/presupuestos/ClienteSelector";
 import { ProductoSelector } from "@/components/presupuestos/ProductoSelector";
+import { SortableLineaItem } from "@/components/presupuestos/SortableLineaItem";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import type { Cliente } from "@/hooks/useClientes";
+import {
+  DndContext,
+  closestCenter,
+  KeyboardSensor,
+  PointerSensor,
+  useSensor,
+  useSensors,
+  DragEndEvent,
+} from "@dnd-kit/core";
+import {
+  arrayMove,
+  SortableContext,
+  sortableKeyboardCoordinates,
+  verticalListSortingStrategy,
+} from "@dnd-kit/sortable";
+import { restrictToVerticalAxis } from "@dnd-kit/modifiers";
 
 interface LineaLocal {
   id: string;
@@ -35,7 +51,6 @@ export default function PresupuestoNuevo() {
   const { data: config } = useEmpresaConfig();
   const createPresupuesto = useCreatePresupuesto();
   const createLinea = useCreatePresupuestoLinea();
-  const recalcular = useRecalcularTotales();
 
   const [cliente, setCliente] = useState<Cliente | null>(null);
   const [lineas, setLineas] = useState<LineaLocal[]>([]);
@@ -46,6 +61,18 @@ export default function PresupuestoNuevo() {
   const [notasInternas, setNotasInternas] = useState('');
   const [showProductoSelector, setShowProductoSelector] = useState(false);
   const [saving, setSaving] = useState(false);
+
+  // DnD sensors
+  const sensors = useSensors(
+    useSensor(PointerSensor, {
+      activationConstraint: {
+        distance: 8,
+      },
+    }),
+    useSensor(KeyboardSensor, {
+      coordinateGetter: sortableKeyboardCoordinates,
+    })
+  );
 
   // Cálculos
   const subtotal = lineas.reduce((sum, l) => sum + l.importe, 0);
@@ -65,6 +92,18 @@ export default function PresupuestoNuevo() {
     setLineas(lineas.filter(l => l.id !== id));
   };
 
+  const handleDragEnd = (event: DragEndEvent) => {
+    const { active, over } = event;
+
+    if (over && active.id !== over.id) {
+      setLineas((items) => {
+        const oldIndex = items.findIndex((i) => i.id === active.id);
+        const newIndex = items.findIndex((i) => i.id === over.id);
+        return arrayMove(items, oldIndex, newIndex);
+      });
+    }
+  };
+
   const handleSave = async (asBorrador = true) => {
     if (!cliente) {
       toast({ title: "Selecciona un cliente", variant: "destructive" });
@@ -77,12 +116,10 @@ export default function PresupuestoNuevo() {
 
     setSaving(true);
     try {
-      // Calcular fecha de validez
       const fechaEmision = new Date();
       const fechaValidez = new Date(fechaEmision);
       fechaValidez.setDate(fechaValidez.getDate() + (config?.validez_dias || 30));
 
-      // Crear presupuesto
       const presupuesto = await createPresupuesto.mutateAsync({
         numero: numero!,
         cliente_id: cliente.id,
@@ -109,7 +146,6 @@ export default function PresupuestoNuevo() {
         notas_internas: notasInternas
       });
 
-      // Crear líneas
       for (let i = 0; i < lineas.length; i++) {
         const linea = lineas[i];
         await createLinea.mutateAsync({
@@ -138,7 +174,7 @@ export default function PresupuestoNuevo() {
 
   return (
     <div className="space-y-6">
-      <div className="flex items-center justify-between">
+      <div className="flex items-center justify-between flex-wrap gap-4">
         <div className="flex items-center gap-4">
           <Button variant="ghost" size="icon" onClick={() => navigate(-1)}>
             <ArrowLeft className="w-4 h-4" />
@@ -169,7 +205,7 @@ export default function PresupuestoNuevo() {
         </CardContent>
       </Card>
 
-      {/* Productos */}
+      {/* Productos con Drag & Drop */}
       <Card>
         <CardHeader className="flex flex-row items-center justify-between">
           <CardTitle>Productos</CardTitle>
@@ -180,32 +216,29 @@ export default function PresupuestoNuevo() {
         </CardHeader>
         <CardContent>
           {lineas.length === 0 ? (
-            <div className="text-center py-8 text-muted-foreground">
-              No hay productos. Añade uno para empezar.
+            <div className="text-center py-12 text-muted-foreground border-2 border-dashed rounded-lg">
+              <p className="text-lg mb-2">No hay productos</p>
+              <p className="text-sm">Añade productos para empezar a crear el presupuesto</p>
             </div>
           ) : (
-            <div className="space-y-2">
-              {lineas.map((linea) => (
-                <div key={linea.id} className="flex items-center gap-4 p-4 border rounded-lg">
-                  <GripVertical className="w-4 h-4 text-muted-foreground cursor-grab" />
-                  <div className="flex-1">
-                    <p className="font-medium">{linea.producto_nombre}</p>
-                    {linea.descripcion && (
-                      <p className="text-sm text-muted-foreground">{linea.descripcion}</p>
-                    )}
-                  </div>
-                  <div className="text-sm text-muted-foreground">
-                    {linea.cantidad} {linea.tipo_cantidad === 'metros' ? 'm²' : linea.tipo_cantidad === 'horas' ? 'h' : 'uds'}
-                  </div>
-                  <div className="font-medium w-24 text-right">
-                    {formatCurrency(linea.importe)}
-                  </div>
-                  <Button variant="ghost" size="icon" onClick={() => handleRemoveLinea(linea.id)}>
-                    <Trash2 className="w-4 h-4 text-destructive" />
-                  </Button>
+            <DndContext
+              sensors={sensors}
+              collisionDetection={closestCenter}
+              onDragEnd={handleDragEnd}
+              modifiers={[restrictToVerticalAxis]}
+            >
+              <SortableContext items={lineas} strategy={verticalListSortingStrategy}>
+                <div className="space-y-2">
+                  {lineas.map((linea) => (
+                    <SortableLineaItem
+                      key={linea.id}
+                      linea={linea}
+                      onRemove={handleRemoveLinea}
+                    />
+                  ))}
                 </div>
-              ))}
-            </div>
+              </SortableContext>
+            </DndContext>
           )}
         </CardContent>
       </Card>
@@ -216,10 +249,10 @@ export default function PresupuestoNuevo() {
           <CardTitle>Totales</CardTitle>
         </CardHeader>
         <CardContent>
-          <div className="grid gap-4 md:grid-cols-2">
+          <div className="grid gap-6 md:grid-cols-2">
             <div className="space-y-4">
               <div className="flex items-center gap-4">
-                <Label className="w-24">Descuento</Label>
+                <Label className="w-24 flex-shrink-0">Descuento</Label>
                 <Input 
                   type="number" 
                   className="w-24"
@@ -227,7 +260,7 @@ export default function PresupuestoNuevo() {
                   onChange={e => setDescuentoValor(Number(e.target.value))} 
                 />
                 <Select value={descuentoTipo} onValueChange={(v: 'porcentaje' | 'importe') => setDescuentoTipo(v)}>
-                  <SelectTrigger className="w-32">
+                  <SelectTrigger className="w-24">
                     <SelectValue />
                   </SelectTrigger>
                   <SelectContent>
@@ -237,38 +270,38 @@ export default function PresupuestoNuevo() {
                 </Select>
               </div>
               <div className="flex items-center gap-4">
-                <Label className="w-24">IVA</Label>
+                <Label className="w-24 flex-shrink-0">IVA</Label>
                 <Input 
                   type="number" 
                   className="w-24"
                   value={ivaPorcentaje} 
                   onChange={e => setIvaPorcentaje(Number(e.target.value))} 
                 />
-                <span>%</span>
+                <span className="text-muted-foreground">%</span>
               </div>
             </div>
-            <div className="space-y-2 text-right">
+            <div className="space-y-2 bg-muted/30 rounded-lg p-4">
               <div className="flex justify-between">
-                <span>Subtotal:</span>
+                <span className="text-muted-foreground">Subtotal:</span>
                 <span className="font-medium">{formatCurrency(subtotal)}</span>
               </div>
               {descuentoImporte > 0 && (
                 <div className="flex justify-between text-muted-foreground">
                   <span>Descuento{descuentoTipo === 'porcentaje' ? ` (${descuentoValor}%)` : ''}:</span>
-                  <span>-{formatCurrency(descuentoImporte)}</span>
+                  <span className="text-destructive">-{formatCurrency(descuentoImporte)}</span>
                 </div>
               )}
               <div className="flex justify-between">
-                <span>Base Imponible:</span>
+                <span className="text-muted-foreground">Base Imponible:</span>
                 <span className="font-medium">{formatCurrency(baseImponible)}</span>
               </div>
               <div className="flex justify-between text-muted-foreground">
                 <span>IVA ({ivaPorcentaje}%):</span>
                 <span>{formatCurrency(ivaImporte)}</span>
               </div>
-              <div className="flex justify-between text-lg font-bold border-t pt-2">
+              <div className="flex justify-between text-xl font-bold border-t pt-3 mt-2">
                 <span>TOTAL:</span>
-                <span>{formatCurrency(total)}</span>
+                <span className="text-primary">{formatCurrency(total)}</span>
               </div>
             </div>
           </div>
@@ -283,11 +316,21 @@ export default function PresupuestoNuevo() {
         <CardContent className="space-y-4">
           <div className="space-y-2">
             <Label>Notas para el cliente (aparecen en PDF)</Label>
-            <Textarea value={notas} onChange={e => setNotas(e.target.value)} rows={3} />
+            <Textarea 
+              value={notas} 
+              onChange={e => setNotas(e.target.value)} 
+              rows={3}
+              placeholder="Incluye montaje en horario laboral. Plazo estimado: 5 días laborables."
+            />
           </div>
           <div className="space-y-2">
             <Label>Notas internas (no aparecen en PDF)</Label>
-            <Textarea value={notasInternas} onChange={e => setNotasInternas(e.target.value)} rows={2} />
+            <Textarea 
+              value={notasInternas} 
+              onChange={e => setNotasInternas(e.target.value)} 
+              rows={2}
+              placeholder="Notas privadas para uso interno"
+            />
           </div>
         </CardContent>
       </Card>
