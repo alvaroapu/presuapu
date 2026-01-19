@@ -14,6 +14,7 @@ import PresupuestoDuplicar from "@/pages/PresupuestoDuplicar";
 import Clientes from "@/pages/Clientes";
 import ClienteNuevo from "@/pages/ClienteNuevo";
 import ClienteDetalle from "@/pages/ClienteDetalle";
+import ClienteEditar from "@/pages/ClienteEditar";
 import Catalogo from "@/pages/Catalogo";
 import ProductoNuevo from "@/pages/ProductoNuevo";
 import ProductoEditar from "@/pages/ProductoEditar";
@@ -41,6 +42,7 @@ const App = () => (
             <Route path="clientes" element={<Clientes />} />
             <Route path="clientes/nuevo" element={<ClienteNuevo />} />
             <Route path="clientes/:id" element={<ClienteDetalle />} />
+            <Route path="clientes/:id/editar" element={<ClienteEditar />} />
             <Route path="catalogo" element={<Catalogo />} />
             <Route path="catalogo/productos/nuevo" element={<ProductoNuevo />} />
             <Route path="catalogo/productos/:id" element={<ProductoEditar />} />

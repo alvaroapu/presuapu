@@ -52,7 +52,7 @@ export default function ClienteDetalle() {
             )}
           </div>
         </div>
-        <Button variant="outline">
+        <Button variant="outline" onClick={() => navigate(`/clientes/${id}/editar`)}>
           <Edit className="w-4 h-4 mr-2" />
           Editar
         </Button>
