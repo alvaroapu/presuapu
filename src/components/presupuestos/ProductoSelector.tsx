@@ -275,14 +275,21 @@ export function ProductoSelector({ open, onClose, onAdd }: ProductoSelectorProps
           )}
 
           {/* Actions */}
-          <div className="flex justify-end gap-2 pt-4">
-            <Button variant="outline" onClick={onClose}>Cancelar</Button>
-            <Button 
-              onClick={handleAdd} 
-              disabled={!productoSeleccionado || !precio || cantidad <= 0}
-            >
-              Añadir
-            </Button>
+          <div className="flex flex-col gap-2 pt-4">
+            {productoSeleccionado && (cantidadStr === '' || cantidad <= 0) && (
+              <p className="text-sm text-destructive text-right">
+                Introduce una cantidad válida mayor que 0
+              </p>
+            )}
+            <div className="flex justify-end gap-2">
+              <Button variant="outline" onClick={onClose}>Cancelar</Button>
+              <Button 
+                onClick={handleAdd} 
+                disabled={!productoSeleccionado || !precio || cantidad <= 0}
+              >
+                Añadir
+              </Button>
+            </div>
           </div>
         </div>
       </DialogContent>
