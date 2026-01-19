@@ -41,7 +41,7 @@ export default function Clientes() {
       </div>
 
       <div className="border rounded-lg">
-        <div className="grid grid-cols-[1fr_1fr_1fr_auto_auto] gap-4 p-4 border-b bg-muted/50 font-medium text-sm">
+        <div className="grid grid-cols-[1fr_1fr_1fr_120px_140px] gap-4 p-4 border-b bg-muted/50 font-medium text-sm">
           <div>Nombre</div>
           <div>Empresa</div>
           <div>Email</div>
@@ -62,7 +62,7 @@ export default function Clientes() {
             <Link
               key={c.id}
               to={`/clientes/${c.id}`}
-              className="grid grid-cols-[1fr_1fr_1fr_auto_auto] gap-4 p-4 border-b last:border-0 items-center hover:bg-muted/30"
+              className="grid grid-cols-[1fr_1fr_1fr_120px_140px] gap-4 p-4 border-b last:border-0 items-center hover:bg-muted/30"
             >
               <div className="font-medium">{c.nombre}</div>
               <div className="text-muted-foreground">{c.nombre_comercial || '-'}</div>
