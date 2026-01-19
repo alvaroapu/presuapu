@@ -145,7 +145,7 @@ export function ProductoSelector({ open, onClose, onAdd }: ProductoSelectorProps
 
           {/* Product List */}
           {!productoId && (
-            <div className="border rounded-lg max-h-60 overflow-auto">
+            <div className="border rounded-lg max-h-96 overflow-auto">
               {productosFiltrados?.map(p => (
                 <button
                   key={p.id}
