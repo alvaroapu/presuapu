@@ -41,7 +41,8 @@ interface Producto {
 }
 
 interface ImportResult {
-  success: number;
+  created: number;
+  updated: number;
   errors: string[];
 }
 
@@ -90,6 +91,7 @@ export function ImportExportProducts({ productos }: { productos: Producto[] | un
       '# - activo puede ser: true o false',
       '# - Los campos numéricos usan punto (.) como decimal',
       '# - Deja vacío los campos que no apliquen al tipo de producto',
+      '# - Si el código ya existe, el producto se ACTUALIZARÁ en lugar de crearse',
     ].join('\n');
 
     const blob = new Blob(['\ufeff' + templateContent], { type: 'text/csv;charset=utf-8;' });
@@ -158,7 +160,7 @@ export function ImportExportProducts({ productos }: { productos: Producto[] | un
     if (!file) return;
 
     setImporting(true);
-    const result: ImportResult = { success: 0, errors: [] };
+    const result: ImportResult = { created: 0, updated: 0, errors: [] };
 
     try {
       const text = await file.text();
@@ -226,12 +228,36 @@ export function ImportExportProducts({ productos }: { productos: Producto[] | un
             activo: activo?.toLowerCase() !== 'false'
           };
 
-          const { error } = await supabase.from('productos').insert(productoData);
-          
-          if (error) {
-            result.errors.push(`Fila ${rowNum}: ${error.message}`);
+          // Check if product with this code already exists
+          let existingProductId: string | null = null;
+          if (codigo) {
+            const existingProduct = productos?.find(
+              p => p.codigo?.toLowerCase() === codigo.toLowerCase()
+            );
+            existingProductId = existingProduct?.id || null;
+          }
+
+          if (existingProductId) {
+            // Update existing product
+            const { error } = await supabase
+              .from('productos')
+              .update(productoData)
+              .eq('id', existingProductId);
+            
+            if (error) {
+              result.errors.push(`Fila ${rowNum}: ${error.message}`);
+            } else {
+              result.updated++;
+            }
           } else {
-            result.success++;
+            // Insert new product
+            const { error } = await supabase.from('productos').insert(productoData);
+            
+            if (error) {
+              result.errors.push(`Fila ${rowNum}: ${error.message}`);
+            } else {
+              result.created++;
+            }
           }
         } catch {
           result.errors.push(`Fila ${rowNum}: Error al procesar`);
@@ -241,7 +267,7 @@ export function ImportExportProducts({ productos }: { productos: Producto[] | un
       setImportResult(result);
       setShowResultDialog(true);
       
-      if (result.success > 0) {
+      if (result.created > 0 || result.updated > 0) {
         queryClient.invalidateQueries({ queryKey: ['productos'] });
       }
     } catch (err) {
@@ -305,12 +331,18 @@ export function ImportExportProducts({ productos }: { productos: Producto[] | un
             </DialogDescription>
           </DialogHeader>
           <div className="space-y-4">
-            <div className="flex items-center gap-4">
+            <div className="flex items-center gap-3">
               <div className="flex-1 p-4 bg-primary/10 rounded-lg text-center">
                 <p className="text-2xl font-bold text-primary">
-                  {importResult?.success || 0}
+                  {importResult?.created || 0}
                 </p>
-                <p className="text-sm text-primary/80">Importados</p>
+                <p className="text-sm text-primary/80">Creados</p>
+              </div>
+              <div className="flex-1 p-4 bg-accent/20 rounded-lg text-center">
+                <p className="text-2xl font-bold text-accent-foreground">
+                  {importResult?.updated || 0}
+                </p>
+                <p className="text-sm text-muted-foreground">Actualizados</p>
               </div>
               <div className="flex-1 p-4 bg-destructive/10 rounded-lg text-center">
                 <p className="text-2xl font-bold text-destructive">
