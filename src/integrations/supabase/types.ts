@@ -364,6 +364,7 @@ export type Database = {
           nombre: string
           precio_base_fijo: number | null
           precio_material: number | null
+          precio_metro_2: number | null
           precio_metro_tarifa_1: number | null
           precio_metro_tarifa_2: number | null
           precio_montaje: number | null
@@ -386,6 +387,7 @@ export type Database = {
           nombre: string
           precio_base_fijo?: number | null
           precio_material?: number | null
+          precio_metro_2?: number | null
           precio_metro_tarifa_1?: number | null
           precio_metro_tarifa_2?: number | null
           precio_montaje?: number | null
@@ -408,6 +410,7 @@ export type Database = {
           nombre?: string
           precio_base_fijo?: number | null
           precio_material?: number | null
+          precio_metro_2?: number | null
           precio_metro_tarifa_1?: number | null
           precio_metro_tarifa_2?: number | null
           precio_montaje?: number | null
