@@ -5,8 +5,9 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { useToast } from '@/hooks/use-toast';
-import { Loader2, FileText, Mail, Lock } from 'lucide-react';
+import { Loader2, Mail, Lock } from 'lucide-react';
 import { z } from 'zod';
+import logo from '@/assets/logo.png';
 
 const authSchema = z.object({
   email: z.string().email('Email inválido'),
@@ -83,11 +84,8 @@ export default function Auth() {
       <div className="hidden lg:flex lg:w-1/2 bg-sidebar relative overflow-hidden">
         <div className="absolute inset-0 bg-gradient-to-br from-sidebar via-sidebar to-primary/20" />
         <div className="relative z-10 flex flex-col justify-center p-12 text-sidebar-foreground">
-          <div className="flex items-center gap-3 mb-8">
-            <div className="p-3 bg-primary rounded-xl shadow-lg">
-              <FileText className="w-8 h-8 text-primary-foreground" />
-            </div>
-            <h1 className="text-3xl font-bold">CRM Presupuestos</h1>
+          <div className="flex items-center gap-4 mb-8">
+            <img src={logo} alt="Apuleyo Diseños" className="h-16 w-auto" />
           </div>
           <p className="text-xl text-sidebar-foreground/80 mb-6">
             Sistema de gestión de presupuestos para imprenta
@@ -116,11 +114,8 @@ export default function Auth() {
       <div className="flex-1 flex items-center justify-center p-8 bg-background">
         <div className="w-full max-w-md">
           {/* Mobile Logo */}
-          <div className="lg:hidden flex items-center justify-center gap-3 mb-8">
-            <div className="p-3 bg-primary rounded-xl shadow-lg">
-              <FileText className="w-8 h-8 text-primary-foreground" />
-            </div>
-            <h1 className="text-2xl font-bold text-foreground">CRM Presupuestos</h1>
+          <div className="lg:hidden flex items-center justify-center mb-8">
+            <img src={logo} alt="Apuleyo Diseños" className="h-14 w-auto" />
           </div>
 
           <div className="text-center mb-8">
