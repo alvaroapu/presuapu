@@ -105,7 +105,7 @@ export function ProductoSelector({ open, onClose, onAdd }: ProductoSelectorProps
 
   return (
     <Dialog open={open} onOpenChange={onClose}>
-      <DialogContent className="max-w-3xl max-h-[90vh] overflow-auto">
+      <DialogContent className="max-w-4xl w-[95vw] max-h-[90vh] overflow-auto">
         <DialogHeader>
           <DialogTitle>Añadir Producto</DialogTitle>
         </DialogHeader>
