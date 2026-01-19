@@ -22,6 +22,7 @@ import {
 } from "@/components/ui/sidebar";
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
+import logo from "@/assets/logo.png";
 
 const menuItems = [
   { title: "Dashboard", url: "/", icon: LayoutDashboard },
@@ -46,15 +47,20 @@ export function AppSidebar() {
 
   return (
     <Sidebar collapsible="icon">
-      <SidebarHeader className="border-b p-4">
-        <div className={cn("flex items-center gap-2", collapsed && "justify-center")}>
-          <div className="w-8 h-8 rounded-lg bg-primary flex items-center justify-center">
-            <FileText className="w-4 h-4 text-primary-foreground" />
-          </div>
+      <SidebarHeader className="border-b border-sidebar-border p-4">
+        <div className={cn("flex items-center gap-3", collapsed && "justify-center")}>
+          <img 
+            src={logo} 
+            alt="Apuleyo Diseños" 
+            className={cn(
+              "object-contain",
+              collapsed ? "w-8 h-8" : "w-10 h-10"
+            )} 
+          />
           {!collapsed && (
             <div className="flex flex-col">
-              <span className="font-semibold text-sm">CRM Presupuestos</span>
-              <span className="text-xs text-muted-foreground">Imprenta</span>
+              <span className="font-bold text-sm text-sidebar-foreground">Apuleyo Diseños</span>
+              <span className="text-xs text-sidebar-foreground/60">CRM Presupuestos</span>
             </div>
           )}
         </div>
@@ -73,7 +79,7 @@ export function AppSidebar() {
         )}
 
         <SidebarGroup>
-          <SidebarGroupLabel>Menú</SidebarGroupLabel>
+          <SidebarGroupLabel className="text-sidebar-foreground/50">Menú</SidebarGroupLabel>
           <SidebarGroupContent>
             <SidebarMenu>
               {menuItems.map((item) => (
@@ -82,8 +88,7 @@ export function AppSidebar() {
                     <NavLink 
                       to={item.url}
                       className={cn(
-                        "flex items-center gap-2",
-                        isActive(item.url) && "bg-accent text-accent-foreground"
+                        "flex items-center gap-2"
                       )}
                     >
                       <item.icon className="w-4 h-4" />
@@ -97,7 +102,7 @@ export function AppSidebar() {
         </SidebarGroup>
 
         <SidebarGroup>
-          <SidebarGroupLabel>Sistema</SidebarGroupLabel>
+          <SidebarGroupLabel className="text-sidebar-foreground/50">Sistema</SidebarGroupLabel>
           <SidebarGroupContent>
             <SidebarMenu>
               {configItems.map((item) => (
@@ -106,8 +111,7 @@ export function AppSidebar() {
                     <NavLink 
                       to={item.url}
                       className={cn(
-                        "flex items-center gap-2",
-                        isActive(item.url) && "bg-accent text-accent-foreground"
+                        "flex items-center gap-2"
                       )}
                     >
                       <item.icon className="w-4 h-4" />
@@ -121,9 +125,9 @@ export function AppSidebar() {
         </SidebarGroup>
       </SidebarContent>
 
-      <SidebarFooter className="border-t p-4">
+      <SidebarFooter className="border-t border-sidebar-border p-4">
         {!collapsed && (
-          <p className="text-xs text-muted-foreground text-center">
+          <p className="text-xs text-sidebar-foreground/40 text-center">
             v1.0.0
           </p>
         )}
