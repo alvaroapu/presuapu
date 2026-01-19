@@ -4,10 +4,8 @@ import { useAuth } from '@/hooks/useAuth';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
-import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { useToast } from '@/hooks/use-toast';
-import { Loader2, FileText } from 'lucide-react';
+import { Loader2, FileText, Mail, Lock } from 'lucide-react';
 import { z } from 'zod';
 
 const authSchema = z.object({
@@ -17,7 +15,7 @@ const authSchema = z.object({
 
 export default function Auth() {
   const navigate = useNavigate();
-  const { signIn, signUp, isAuthenticated, loading: authLoading } = useAuth();
+  const { signIn, isAuthenticated, loading: authLoading } = useAuth();
   const { toast } = useToast();
   
   const [email, setEmail] = useState('');
@@ -71,31 +69,6 @@ export default function Auth() {
     }
   };
 
-  const handleSignUp = async (e: React.FormEvent) => {
-    e.preventDefault();
-    if (!validateForm()) return;
-
-    setLoading(true);
-    const { data, error } = await signUp(email, password);
-    setLoading(false);
-
-    if (error) {
-      let message = 'Error al crear la cuenta';
-      if (error.message.includes('User already registered')) {
-        message = 'Este email ya está registrado. Intenta iniciar sesión.';
-      }
-      toast({ title: message, variant: 'destructive' });
-    } else if (data.user && !data.session) {
-      toast({ 
-        title: 'Cuenta creada', 
-        description: 'Revisa tu email para confirmar la cuenta' 
-      });
-    } else {
-      toast({ title: 'Cuenta creada correctamente' });
-      navigate('/');
-    }
-  };
-
   if (authLoading) {
     return (
       <div className="min-h-screen flex items-center justify-center bg-background">
@@ -105,102 +78,118 @@ export default function Auth() {
   }
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-muted/30 p-4">
-      <Card className="w-full max-w-md">
-        <CardHeader className="text-center">
-          <div className="flex justify-center mb-4">
-            <div className="p-3 bg-primary rounded-lg">
+    <div className="min-h-screen flex">
+      {/* Left Panel - Branding */}
+      <div className="hidden lg:flex lg:w-1/2 bg-sidebar relative overflow-hidden">
+        <div className="absolute inset-0 bg-gradient-to-br from-sidebar via-sidebar to-primary/20" />
+        <div className="relative z-10 flex flex-col justify-center p-12 text-sidebar-foreground">
+          <div className="flex items-center gap-3 mb-8">
+            <div className="p-3 bg-primary rounded-xl shadow-lg">
               <FileText className="w-8 h-8 text-primary-foreground" />
             </div>
+            <h1 className="text-3xl font-bold">CRM Presupuestos</h1>
           </div>
-          <CardTitle className="text-2xl">CRM Presupuestos</CardTitle>
-          <CardDescription>
+          <p className="text-xl text-sidebar-foreground/80 mb-6">
             Sistema de gestión de presupuestos para imprenta
-          </CardDescription>
-        </CardHeader>
-        <CardContent>
-          <Tabs defaultValue="signin">
-            <TabsList className="grid w-full grid-cols-2 mb-6">
-              <TabsTrigger value="signin">Iniciar Sesión</TabsTrigger>
-              <TabsTrigger value="signup">Registrarse</TabsTrigger>
-            </TabsList>
-            
-            <TabsContent value="signin">
-              <form onSubmit={handleSignIn} className="space-y-4">
-                <div className="space-y-2">
-                  <Label htmlFor="signin-email">Email</Label>
-                  <Input
-                    id="signin-email"
-                    type="email"
-                    placeholder="tu@email.com"
-                    value={email}
-                    onChange={(e) => setEmail(e.target.value)}
-                    autoComplete="email"
-                  />
-                  {errors.email && (
-                    <p className="text-sm text-destructive">{errors.email}</p>
-                  )}
-                </div>
-                <div className="space-y-2">
-                  <Label htmlFor="signin-password">Contraseña</Label>
-                  <Input
-                    id="signin-password"
-                    type="password"
-                    placeholder="••••••••"
-                    value={password}
-                    onChange={(e) => setPassword(e.target.value)}
-                    autoComplete="current-password"
-                  />
-                  {errors.password && (
-                    <p className="text-sm text-destructive">{errors.password}</p>
-                  )}
-                </div>
-                <Button type="submit" className="w-full" disabled={loading}>
-                  {loading && <Loader2 className="w-4 h-4 mr-2 animate-spin" />}
-                  Iniciar Sesión
-                </Button>
-              </form>
-            </TabsContent>
-            
-            <TabsContent value="signup">
-              <form onSubmit={handleSignUp} className="space-y-4">
-                <div className="space-y-2">
-                  <Label htmlFor="signup-email">Email</Label>
-                  <Input
-                    id="signup-email"
-                    type="email"
-                    placeholder="tu@email.com"
-                    value={email}
-                    onChange={(e) => setEmail(e.target.value)}
-                    autoComplete="email"
-                  />
-                  {errors.email && (
-                    <p className="text-sm text-destructive">{errors.email}</p>
-                  )}
-                </div>
-                <div className="space-y-2">
-                  <Label htmlFor="signup-password">Contraseña</Label>
-                  <Input
-                    id="signup-password"
-                    type="password"
-                    placeholder="Mínimo 6 caracteres"
-                    value={password}
-                    onChange={(e) => setPassword(e.target.value)}
-                    autoComplete="new-password"
-                  />
-                  {errors.password && (
-                    <p className="text-sm text-destructive">{errors.password}</p>
-                  )}
-                </div>
-                <Button type="submit" className="w-full" disabled={loading}>
-                  {loading && <Loader2 className="w-4 h-4 mr-2 animate-spin" />}
-                  Crear Cuenta
-                </Button>
-              </form>
-            </TabsContent>
-          </Tabs>
-        </CardContent>
-      </Card>
+          </p>
+          <ul className="space-y-4 text-sidebar-foreground/70">
+            <li className="flex items-center gap-3">
+              <div className="w-2 h-2 rounded-full bg-primary" />
+              Gestiona tus clientes de forma eficiente
+            </li>
+            <li className="flex items-center gap-3">
+              <div className="w-2 h-2 rounded-full bg-primary" />
+              Crea presupuestos profesionales
+            </li>
+            <li className="flex items-center gap-3">
+              <div className="w-2 h-2 rounded-full bg-primary" />
+              Catálogo de productos configurable
+            </li>
+          </ul>
+        </div>
+        {/* Decorative circles */}
+        <div className="absolute -bottom-32 -right-32 w-96 h-96 rounded-full bg-primary/10" />
+        <div className="absolute -top-16 -right-16 w-64 h-64 rounded-full bg-accent/10" />
+      </div>
+
+      {/* Right Panel - Login Form */}
+      <div className="flex-1 flex items-center justify-center p-8 bg-background">
+        <div className="w-full max-w-md">
+          {/* Mobile Logo */}
+          <div className="lg:hidden flex items-center justify-center gap-3 mb-8">
+            <div className="p-3 bg-primary rounded-xl shadow-lg">
+              <FileText className="w-8 h-8 text-primary-foreground" />
+            </div>
+            <h1 className="text-2xl font-bold text-foreground">CRM Presupuestos</h1>
+          </div>
+
+          <div className="text-center mb-8">
+            <h2 className="text-2xl font-semibold text-foreground">
+              Bienvenido de nuevo
+            </h2>
+            <p className="text-muted-foreground mt-2">
+              Introduce tus credenciales para acceder
+            </p>
+          </div>
+
+          <form onSubmit={handleSignIn} className="space-y-5">
+            <div className="space-y-2">
+              <Label htmlFor="email" className="text-sm font-medium">
+                Email
+              </Label>
+              <div className="relative">
+                <Mail className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-muted-foreground" />
+                <Input
+                  id="email"
+                  type="email"
+                  placeholder="tu@email.com"
+                  value={email}
+                  onChange={(e) => setEmail(e.target.value)}
+                  autoComplete="email"
+                  className="pl-10 h-12"
+                />
+              </div>
+              {errors.email && (
+                <p className="text-sm text-destructive">{errors.email}</p>
+              )}
+            </div>
+
+            <div className="space-y-2">
+              <Label htmlFor="password" className="text-sm font-medium">
+                Contraseña
+              </Label>
+              <div className="relative">
+                <Lock className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-muted-foreground" />
+                <Input
+                  id="password"
+                  type="password"
+                  placeholder="••••••••"
+                  value={password}
+                  onChange={(e) => setPassword(e.target.value)}
+                  autoComplete="current-password"
+                  className="pl-10 h-12"
+                />
+              </div>
+              {errors.password && (
+                <p className="text-sm text-destructive">{errors.password}</p>
+              )}
+            </div>
+
+            <Button 
+              type="submit" 
+              className="w-full h-12 text-base font-medium" 
+              disabled={loading}
+            >
+              {loading && <Loader2 className="w-5 h-5 mr-2 animate-spin" />}
+              Iniciar Sesión
+            </Button>
+          </form>
+
+          <p className="text-center text-sm text-muted-foreground mt-8">
+            © {new Date().getFullYear()} CRM Presupuestos
+          </p>
+        </div>
+      </div>
     </div>
   );
 }
