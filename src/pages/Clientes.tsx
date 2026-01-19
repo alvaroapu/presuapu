@@ -3,9 +3,10 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Plus, Search } from "lucide-react";
 import { useClientesConStats } from "@/hooks/useClientes";
-import { formatCurrency, formatDate } from "@/lib/formatters";
+import { formatCurrency } from "@/lib/formatters";
 import { Skeleton } from "@/components/ui/skeleton";
 import { useState } from "react";
+import { ImportExportClientes } from "@/components/clientes/ImportExportClientes";
 
 export default function Clientes() {
   const [busqueda, setBusqueda] = useState("");
@@ -22,12 +23,15 @@ export default function Clientes() {
     <div className="space-y-6">
       <div className="flex items-center justify-between">
         <h1 className="text-3xl font-bold">Clientes</h1>
-        <Button asChild>
-          <Link to="/clientes/nuevo">
-            <Plus className="w-4 h-4 mr-2" />
-            Nuevo Cliente
-          </Link>
-        </Button>
+        <div className="flex items-center gap-2">
+          <ImportExportClientes clientes={clientes} />
+          <Button asChild>
+            <Link to="/clientes/nuevo">
+              <Plus className="w-4 h-4 mr-2" />
+              Nuevo Cliente
+            </Link>
+          </Button>
+        </div>
       </div>
 
       <div className="relative max-w-md">
