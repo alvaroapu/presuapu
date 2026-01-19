@@ -12,14 +12,36 @@ import { useToast } from "@/hooks/use-toast";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 
 export default function Presupuestos() {
+  const currentYear = new Date().getFullYear();
   const [busqueda, setBusqueda] = useState("");
   const [estadoFiltro, setEstadoFiltro] = useState<string>("todos");
+  const [añoFiltro, setAñoFiltro] = useState<number>(currentYear);
+  const [mesFiltro, setMesFiltro] = useState<string>("todos");
+  
   const { data: presupuestos, isLoading } = usePresupuestos({
     busqueda: busqueda || undefined,
-    estado: estadoFiltro !== "todos" ? estadoFiltro : undefined
+    estado: estadoFiltro !== "todos" ? estadoFiltro : undefined,
+    año: añoFiltro,
+    mes: mesFiltro !== "todos" ? parseInt(mesFiltro) : undefined
   });
   const updatePresupuesto = useUpdatePresupuesto();
   const { toast } = useToast();
+
+  const años = Array.from({ length: 10 }, (_, i) => currentYear - i);
+  const meses = [
+    { value: "1", label: "Enero" },
+    { value: "2", label: "Febrero" },
+    { value: "3", label: "Marzo" },
+    { value: "4", label: "Abril" },
+    { value: "5", label: "Mayo" },
+    { value: "6", label: "Junio" },
+    { value: "7", label: "Julio" },
+    { value: "8", label: "Agosto" },
+    { value: "9", label: "Septiembre" },
+    { value: "10", label: "Octubre" },
+    { value: "11", label: "Noviembre" },
+    { value: "12", label: "Diciembre" },
+  ];
 
   const cambiarEstado = async (id: string, estado: string) => {
     try {
@@ -42,8 +64,8 @@ export default function Presupuestos() {
         </Button>
       </div>
 
-      <div className="flex gap-4">
-        <div className="relative flex-1 max-w-md">
+      <div className="flex flex-wrap gap-4">
+        <div className="relative flex-1 min-w-[200px] max-w-md">
           <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
           <Input
             placeholder="Buscar por número o cliente..."
@@ -52,6 +74,27 @@ export default function Presupuestos() {
             onChange={(e) => setBusqueda(e.target.value)}
           />
         </div>
+        <Select value={añoFiltro.toString()} onValueChange={(v) => setAñoFiltro(parseInt(v))}>
+          <SelectTrigger className="w-28">
+            <SelectValue placeholder="Año" />
+          </SelectTrigger>
+          <SelectContent>
+            {años.map((año) => (
+              <SelectItem key={año} value={año.toString()}>{año}</SelectItem>
+            ))}
+          </SelectContent>
+        </Select>
+        <Select value={mesFiltro} onValueChange={setMesFiltro}>
+          <SelectTrigger className="w-36">
+            <SelectValue placeholder="Mes" />
+          </SelectTrigger>
+          <SelectContent>
+            <SelectItem value="todos">Todos los meses</SelectItem>
+            {meses.map((mes) => (
+              <SelectItem key={mes.value} value={mes.value}>{mes.label}</SelectItem>
+            ))}
+          </SelectContent>
+        </Select>
         <Select value={estadoFiltro} onValueChange={setEstadoFiltro}>
           <SelectTrigger className="w-40">
             <SelectValue placeholder="Estado" />

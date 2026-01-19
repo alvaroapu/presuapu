@@ -53,6 +53,8 @@ interface FiltrosPresupuesto {
   estado?: string;
   clienteId?: string;
   busqueda?: string;
+  año?: number;
+  mes?: number;
 }
 
 export function usePresupuestos(filtros?: FiltrosPresupuesto) {
@@ -72,6 +74,19 @@ export function usePresupuestos(filtros?: FiltrosPresupuesto) {
       }
       if (filtros?.busqueda) {
         query = query.or(`numero.ilike.%${filtros.busqueda}%,cliente_nombre.ilike.%${filtros.busqueda}%`);
+      }
+      if (filtros?.año) {
+        const startOfYear = `${filtros.año}-01-01`;
+        const endOfYear = `${filtros.año}-12-31`;
+        
+        if (filtros?.mes) {
+          const startOfMonth = `${filtros.año}-${String(filtros.mes).padStart(2, '0')}-01`;
+          const lastDay = new Date(filtros.año, filtros.mes, 0).getDate();
+          const endOfMonth = `${filtros.año}-${String(filtros.mes).padStart(2, '0')}-${lastDay}`;
+          query = query.gte('fecha_emision', startOfMonth).lte('fecha_emision', endOfMonth);
+        } else {
+          query = query.gte('fecha_emision', startOfYear).lte('fecha_emision', endOfYear);
+        }
       }
       
       const { data, error } = await query;
