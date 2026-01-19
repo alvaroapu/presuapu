@@ -1,7 +1,7 @@
 import { useSortable } from "@dnd-kit/sortable";
 import { CSS } from "@dnd-kit/utilities";
 import { Button } from "@/components/ui/button";
-import { GripVertical, Trash2 } from "lucide-react";
+import { GripVertical, Trash2, Pencil } from "lucide-react";
 import { formatCurrency } from "@/lib/formatters";
 import { cn } from "@/lib/utils";
 
@@ -20,9 +20,10 @@ interface LineaLocal {
 interface SortableLineaItemProps {
   linea: LineaLocal;
   onRemove: (id: string) => void;
+  onEdit?: (linea: LineaLocal) => void;
 }
 
-export function SortableLineaItem({ linea, onRemove }: SortableLineaItemProps) {
+export function SortableLineaItem({ linea, onRemove, onEdit }: SortableLineaItemProps) {
   const {
     attributes,
     listeners,
@@ -81,6 +82,18 @@ export function SortableLineaItem({ linea, onRemove }: SortableLineaItemProps) {
       <div className="font-medium w-24 text-right whitespace-nowrap">
         {formatCurrency(linea.importe)}
       </div>
+      
+      {onEdit && (
+        <Button 
+          variant="ghost" 
+          size="icon" 
+          onClick={() => onEdit(linea)}
+          className="flex-shrink-0"
+          type="button"
+        >
+          <Pencil className="w-4 h-4 text-muted-foreground" />
+        </Button>
+      )}
       
       <Button 
         variant="ghost" 

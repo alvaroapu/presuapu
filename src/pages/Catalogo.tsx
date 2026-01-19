@@ -1,6 +1,6 @@
 import { Link } from "react-router-dom";
 import { Button } from "@/components/ui/button";
-import { Plus, Check, Wrench } from "lucide-react";
+import { Plus, Check, Wrench, Calculator } from "lucide-react";
 import { useProductos } from "@/hooks/useProductos";
 import { useCategorias } from "@/hooks/useCategorias";
 import { formatCurrency } from "@/lib/formatters";
@@ -10,16 +10,24 @@ import { ChevronDown } from "lucide-react";
 import { useState } from "react";
 import { Badge } from "@/components/ui/badge";
 import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip";
+import { PriceCalculator } from "@/components/catalogo/PriceCalculator";
 
 export default function Catalogo() {
   const { data: productos, isLoading: loadingProductos } = useProductos();
   const { data: categorias, isLoading: loadingCategorias } = useCategorias();
   const [openCategories, setOpenCategories] = useState<string[]>([]);
+  const [calculatorProductId, setCalculatorProductId] = useState<string | null>(null);
 
   const toggleCategory = (id: string) => {
     setOpenCategories(prev => 
       prev.includes(id) ? prev.filter(c => c !== id) : [...prev, id]
     );
+  };
+
+  const toggleCalculator = (e: React.MouseEvent, productId: string) => {
+    e.preventDefault();
+    e.stopPropagation();
+    setCalculatorProductId(prev => prev === productId ? null : productId);
   };
 
   const productosPorCategoria = categorias?.map(cat => ({
@@ -80,7 +88,7 @@ export default function Catalogo() {
             </CollapsibleTrigger>
             <CollapsibleContent>
               <div className="border border-t-0 rounded-b-lg overflow-hidden">
-                <div className="grid grid-cols-[1fr_80px_120px_120px_100px_60px] gap-2 p-3 border-b bg-muted/50 text-xs font-medium text-muted-foreground uppercase tracking-wide">
+                <div className="grid grid-cols-[1fr_80px_120px_120px_100px_60px_50px] gap-2 p-3 border-b bg-muted/50 text-xs font-medium text-muted-foreground uppercase tracking-wide">
                   <div>Producto</div>
                   <div>Tipo</div>
                   <div>Precio/m²</div>
@@ -90,78 +98,100 @@ export default function Catalogo() {
                   </div>
                   <div>Tarifa 2</div>
                   <div className="text-center">Activo</div>
+                  <div className="text-center">
+                    <Calculator className="w-3 h-3 mx-auto" />
+                  </div>
                 </div>
                 {cat.productos.map((p) => (
-                  <Link
-                    key={p.id}
-                    to={`/catalogo/productos/${p.id}`}
-                    className="grid grid-cols-[1fr_80px_120px_120px_100px_60px] gap-2 p-3 border-b last:border-0 items-center hover:bg-muted/30 transition-colors"
-                  >
-                    <div>
-                      <span className="font-medium">{p.nombre}</span>
-                      {p.descripcion && (
-                        <p className="text-xs text-muted-foreground truncate">{p.descripcion}</p>
-                      )}
-                    </div>
-                    <div>
-                      <Badge variant="outline" className="text-xs">
-                        {getTipoLabel(p.tipo_calculo || '')}
-                      </Badge>
-                    </div>
-                    <div className="text-sm font-medium">
-                      {p.tipo_calculo === 'por_metro' && (
-                        <Tooltip>
-                          <TooltipTrigger asChild>
-                            <span className="cursor-help">
-                              {formatCurrency(p.precio_metro_tarifa_1 || 0)}
-                            </span>
-                          </TooltipTrigger>
-                          <TooltipContent>
-                            <p>Hasta {p.metros_limite_tarifa_1}m²</p>
-                          </TooltipContent>
-                        </Tooltip>
-                      )}
-                      {p.tipo_calculo === 'por_hora' && formatCurrency(p.precio_por_hora || 0)}
-                      {p.tipo_calculo === 'por_unidad' && formatCurrency(p.precio_por_unidad || 0)}
-                      {p.tipo_calculo === 'por_placa' && (
-                        <span className="text-xs">
-                          A4: {formatCurrency(p.precio_placa_a4 || 0)}
-                        </span>
-                      )}
-                    </div>
-                    <div className="text-sm">
-                      {p.precio_montaje && p.precio_montaje > 0 ? (
-                        <span className="text-primary font-medium">
-                          {formatCurrency(p.precio_montaje)}
-                        </span>
-                      ) : (
-                        <span className="text-muted-foreground">-</span>
-                      )}
-                    </div>
-                    <div className="text-sm text-muted-foreground">
-                      {p.tipo_calculo === 'por_metro' && p.precio_metro_tarifa_2 ? (
-                        <Tooltip>
-                          <TooltipTrigger asChild>
-                            <span className="cursor-help">
-                              {formatCurrency(p.precio_metro_tarifa_2)}
-                            </span>
-                          </TooltipTrigger>
-                          <TooltipContent>
-                            <p>Más de {p.metros_limite_tarifa_1}m²</p>
-                          </TooltipContent>
-                        </Tooltip>
-                      ) : (
-                        '-'
-                      )}
-                    </div>
-                    <div className="text-center">
-                      {p.activo ? (
-                        <Check className="w-4 h-4 text-green-500 mx-auto" />
-                      ) : (
-                        <span className="text-muted-foreground">-</span>
-                      )}
-                    </div>
-                  </Link>
+                  <div key={p.id} className="border-b last:border-0">
+                    <Link
+                      to={`/catalogo/productos/${p.id}`}
+                      className="grid grid-cols-[1fr_80px_120px_120px_100px_60px_50px] gap-2 p-3 items-center hover:bg-muted/30 transition-colors"
+                    >
+                      <div>
+                        <span className="font-medium">{p.nombre}</span>
+                        {p.descripcion && (
+                          <p className="text-xs text-muted-foreground truncate">{p.descripcion}</p>
+                        )}
+                      </div>
+                      <div>
+                        <Badge variant="outline" className="text-xs">
+                          {getTipoLabel(p.tipo_calculo || '')}
+                        </Badge>
+                      </div>
+                      <div className="text-sm font-medium">
+                        {p.tipo_calculo === 'por_metro' && (
+                          <Tooltip>
+                            <TooltipTrigger asChild>
+                              <span className="cursor-help">
+                                {formatCurrency(p.precio_metro_tarifa_1 || 0)}
+                              </span>
+                            </TooltipTrigger>
+                            <TooltipContent>
+                              <p>Hasta {p.metros_limite_tarifa_1}m²</p>
+                            </TooltipContent>
+                          </Tooltip>
+                        )}
+                        {p.tipo_calculo === 'por_hora' && formatCurrency(p.precio_por_hora || 0)}
+                        {p.tipo_calculo === 'por_unidad' && formatCurrency(p.precio_por_unidad || 0)}
+                        {p.tipo_calculo === 'por_placa' && (
+                          <span className="text-xs">
+                            A4: {formatCurrency(p.precio_placa_a4 || 0)}
+                          </span>
+                        )}
+                      </div>
+                      <div className="text-sm">
+                        {p.precio_montaje && p.precio_montaje > 0 ? (
+                          <span className="text-primary font-medium">
+                            {formatCurrency(p.precio_montaje)}
+                          </span>
+                        ) : (
+                          <span className="text-muted-foreground">-</span>
+                        )}
+                      </div>
+                      <div className="text-sm text-muted-foreground">
+                        {p.tipo_calculo === 'por_metro' && p.precio_metro_tarifa_2 ? (
+                          <Tooltip>
+                            <TooltipTrigger asChild>
+                              <span className="cursor-help">
+                                {formatCurrency(p.precio_metro_tarifa_2)}
+                              </span>
+                            </TooltipTrigger>
+                            <TooltipContent>
+                              <p>Más de {p.metros_limite_tarifa_1}m²</p>
+                            </TooltipContent>
+                          </Tooltip>
+                        ) : (
+                          '-'
+                        )}
+                      </div>
+                      <div className="text-center">
+                        {p.activo ? (
+                          <Check className="w-4 h-4 text-green-500 mx-auto" />
+                        ) : (
+                          <span className="text-muted-foreground">-</span>
+                        )}
+                      </div>
+                      <div className="text-center">
+                        <Button
+                          variant="ghost"
+                          size="icon"
+                          className="h-7 w-7"
+                          onClick={(e) => toggleCalculator(e, p.id!)}
+                        >
+                          <Calculator className={`w-4 h-4 ${calculatorProductId === p.id ? 'text-primary' : 'text-muted-foreground'}`} />
+                        </Button>
+                      </div>
+                    </Link>
+                    {calculatorProductId === p.id && (
+                      <div className="px-3 pb-3">
+                        <PriceCalculator 
+                          producto={p} 
+                          onClose={() => setCalculatorProductId(null)} 
+                        />
+                      </div>
+                    )}
+                  </div>
                 ))}
                 {cat.productos.length === 0 && (
                   <div className="p-8 text-center text-muted-foreground">

@@ -148,6 +148,7 @@ export interface PrecioCalculado {
   importe_total: number;
   desglose: {
     precio_fijo?: number;
+    importe_metro_2?: number;
     metros_tarifa_1?: number;
     precio_metro_tarifa_1?: number;
     importe_tarifa_1?: number;
