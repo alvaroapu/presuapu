@@ -291,10 +291,12 @@ export function PresupuestoPDF({ presupuesto, lineas, config }: PresupuestoPDFPr
             <Text>BASE IMPONIBLE:</Text>
             <Text>{formatCurrency(presupuesto.base_imponible)}</Text>
           </View>
-          <View style={styles.totalRow}>
-            <Text>IVA ({presupuesto.iva_porcentaje || 21}%):</Text>
-            <Text>{formatCurrency(presupuesto.iva_importe)}</Text>
-          </View>
+          {(presupuesto.iva_porcentaje || 0) > 0 && (
+            <View style={styles.totalRow}>
+              <Text>IVA ({presupuesto.iva_porcentaje}%):</Text>
+              <Text>{formatCurrency(presupuesto.iva_importe)}</Text>
+            </View>
+          )}
           <View style={[styles.totalRow, styles.totalFinal]}>
             <Text style={styles.totalLabel}>TOTAL:</Text>
             <Text style={styles.totalValor}>{formatCurrency(presupuesto.total)}</Text>

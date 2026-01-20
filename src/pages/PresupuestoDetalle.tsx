@@ -241,10 +241,12 @@ export default function PresupuestoDetalle() {
                 <span>Base Imponible:</span>
                 <span>{formatCurrency(presupuesto.base_imponible || 0)}</span>
               </div>
-              <div className="flex justify-between text-muted-foreground">
-                <span>IVA ({presupuesto.iva_porcentaje || 21}%):</span>
-                <span>{formatCurrency(presupuesto.iva_importe || 0)}</span>
-              </div>
+              {(presupuesto.iva_porcentaje || 0) > 0 && (
+                <div className="flex justify-between text-muted-foreground">
+                  <span>IVA ({presupuesto.iva_porcentaje}%):</span>
+                  <span>{formatCurrency(presupuesto.iva_importe || 0)}</span>
+                </div>
+              )}
               <div className="flex justify-between text-lg font-bold border-t pt-3">
                 <span>TOTAL:</span>
                 <span>{formatCurrency(presupuesto.total || 0)}</span>
@@ -269,6 +271,12 @@ export default function PresupuestoDetalle() {
                 <div className="flex justify-between">
                   <span className="text-muted-foreground">Ref. cliente:</span>
                   <span>{presupuesto.referencia_cliente}</span>
+                </div>
+              )}
+              {(presupuesto as any).metodo_pago && (
+                <div className="flex justify-between">
+                  <span className="text-muted-foreground">Método de pago:</span>
+                  <span className="capitalize">{(presupuesto as any).metodo_pago === 'transferencia' ? 'Transferencia bancaria' : (presupuesto as any).metodo_pago}</span>
                 </div>
               )}
             </CardContent>

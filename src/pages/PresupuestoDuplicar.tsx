@@ -60,6 +60,7 @@ export default function PresupuestoDuplicar() {
       initialIvaPorcentaje={presupuesto.iva_porcentaje || 21}
       initialNotas={presupuesto.notas || ''}
       initialNotasInternas={presupuesto.notas_internas || ''}
+      initialMetodoPago={(presupuesto as any).metodo_pago || 'transferencia'}
     />
   );
 }

@@ -28,6 +28,7 @@ export interface Factura {
   fecha_pago: string | null;
   notas: string | null;
   notas_internas: string | null;
+  metodo_pago: string | null;
   created_at: string | null;
   updated_at: string | null;
   num_lineas?: number;
@@ -373,7 +374,8 @@ export function useConvertirPresupuestoAFactura() {
           iva_importe: presupuesto.iva_importe,
           total: presupuesto.total,
           notas: presupuesto.notas,
-          estado: 'emitida'
+          estado: 'emitida',
+          metodo_pago: presupuesto.metodo_pago
         })
         .select()
         .single();
