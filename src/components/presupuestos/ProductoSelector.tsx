@@ -8,9 +8,10 @@ import { Badge } from "@/components/ui/badge";
 import { useProductos, useCalcularPrecio } from "@/hooks/useProductos";
 import { useCategorias } from "@/hooks/useCategorias";
 import { formatCurrency, formatNumber } from "@/lib/formatters";
-import { Search } from "lucide-react";
+import { Search, Wand2 } from "lucide-react";
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import { cn } from "@/lib/utils";
+import { ProductoPersonalizadoDialog } from "./ProductoPersonalizadoDialog";
 
 interface LineaLocal {
   id: string;
@@ -40,6 +41,7 @@ export function ProductoSelector({ open, onClose, onAdd }: ProductoSelectorProps
   const [cantidadStr, setCantidadStr] = useState("1");
   const [tipoCantidad, setTipoCantidad] = useState("metros");
   const [descripcion, setDescripcion] = useState("");
+  const [showPersonalizado, setShowPersonalizado] = useState(false);
 
   const productoSeleccionado = productos?.find(p => p.id === productoId);
   
@@ -105,7 +107,13 @@ export function ProductoSelector({ open, onClose, onAdd }: ProductoSelectorProps
     });
   };
 
+  const handleAddPersonalizado = (linea: LineaLocal) => {
+    setShowPersonalizado(false);
+    onAdd(linea);
+  };
+
   return (
+    <>
     <Dialog open={open} onOpenChange={onClose}>
       <DialogContent className="max-w-4xl w-[95vw] max-h-[90vh] overflow-auto">
         <DialogHeader>
@@ -113,15 +121,25 @@ export function ProductoSelector({ open, onClose, onAdd }: ProductoSelectorProps
         </DialogHeader>
 
         <div className="space-y-4">
-          {/* Search */}
-          <div className="relative">
-            <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
-            <Input
-              placeholder="Buscar producto..."
-              className="pl-10"
-              value={search}
-              onChange={(e) => setSearch(e.target.value)}
-            />
+          {/* Search and Custom Product Button */}
+          <div className="flex gap-2">
+            <div className="relative flex-1">
+              <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
+              <Input
+                placeholder="Buscar producto..."
+                className="pl-10"
+                value={search}
+                onChange={(e) => setSearch(e.target.value)}
+              />
+            </div>
+            <Button 
+              variant="outline" 
+              onClick={() => setShowPersonalizado(true)}
+              className="shrink-0"
+            >
+              <Wand2 className="w-4 h-4 mr-2" />
+              Personalizado
+            </Button>
           </div>
 
           {/* Categories */}
@@ -294,5 +312,12 @@ export function ProductoSelector({ open, onClose, onAdd }: ProductoSelectorProps
         </div>
       </DialogContent>
     </Dialog>
+
+    <ProductoPersonalizadoDialog
+      open={showPersonalizado}
+      onClose={() => setShowPersonalizado(false)}
+      onAdd={handleAddPersonalizado}
+    />
+    </>
   );
 }
