@@ -303,6 +303,33 @@ export function PresupuestoPDF({ presupuesto, lineas, config }: PresupuestoPDFPr
           </View>
         </View>
 
+        {/* Método de pago */}
+        {(presupuesto as any).metodo_pago && (
+          <View style={styles.notas}>
+            <Text style={styles.notasTitulo}>FORMA DE PAGO</Text>
+            <Text style={styles.notasTexto}>
+              {(presupuesto as any).metodo_pago === 'transferencia' ? 'Transferencia bancaria' :
+               (presupuesto as any).metodo_pago === 'efectivo' ? 'Efectivo' :
+               (presupuesto as any).metodo_pago === 'tarjeta' ? 'Tarjeta de crédito/débito' :
+               (presupuesto as any).metodo_pago === 'bizum' ? 'Bizum' :
+               (presupuesto as any).metodo_pago === 'paypal' ? 'PayPal' :
+               (presupuesto as any).metodo_pago === 'domiciliacion' ? 'Domiciliación bancaria' :
+               (presupuesto as any).metodo_pago}
+            </Text>
+          </View>
+        )}
+
+        {/* Datos bancarios (solo si método es transferencia o domiciliación) */}
+        {((presupuesto as any).metodo_pago === 'transferencia' || (presupuesto as any).metodo_pago === 'domiciliacion') && (config.cuenta_bancaria || config.iban) && (
+          <View style={styles.notas}>
+            <Text style={styles.notasTitulo}>DATOS PARA EL PAGO</Text>
+            <Text style={styles.notasTexto}>
+              {config.iban && `IBAN: ${config.iban}\n`}
+              {config.cuenta_bancaria && `Cuenta: ${config.cuenta_bancaria}`}
+            </Text>
+          </View>
+        )}
+
         {/* Notas */}
         {presupuesto.notas && (
           <View style={styles.notas}>
