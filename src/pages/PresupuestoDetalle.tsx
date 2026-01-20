@@ -276,11 +276,52 @@ export default function PresupuestoDetalle() {
               {(presupuesto as any).metodo_pago && (
                 <div className="flex justify-between">
                   <span className="text-muted-foreground">Método de pago:</span>
-                  <span className="capitalize">{(presupuesto as any).metodo_pago === 'transferencia' ? 'Transferencia bancaria' : (presupuesto as any).metodo_pago}</span>
+                  <span>
+                    {(presupuesto as any).metodo_pago === 'transferencia' ? 'Transferencia bancaria' :
+                     (presupuesto as any).metodo_pago === 'efectivo' ? 'Efectivo' :
+                     (presupuesto as any).metodo_pago === 'tarjeta' ? 'Tarjeta de crédito/débito' :
+                     (presupuesto as any).metodo_pago === 'bizum' ? 'Bizum' :
+                     (presupuesto as any).metodo_pago === 'paypal' ? 'PayPal' :
+                     (presupuesto as any).metodo_pago === 'domiciliacion' ? 'Domiciliación bancaria' :
+                     (presupuesto as any).metodo_pago}
+                  </span>
                 </div>
               )}
             </CardContent>
           </Card>
+
+          {/* Condiciones de Pago */}
+          {(config?.condiciones_pago || (presupuesto as any).metodo_pago) && (
+            <Card>
+              <CardHeader>
+                <CardTitle>Condiciones de Pago</CardTitle>
+              </CardHeader>
+              <CardContent className="text-sm space-y-2">
+                {(presupuesto as any).metodo_pago && (
+                  <p>
+                    <span className="font-medium">Forma de pago: </span>
+                    {(presupuesto as any).metodo_pago === 'transferencia' ? 'Transferencia bancaria' :
+                     (presupuesto as any).metodo_pago === 'efectivo' ? 'Efectivo' :
+                     (presupuesto as any).metodo_pago === 'tarjeta' ? 'Tarjeta de crédito/débito' :
+                     (presupuesto as any).metodo_pago === 'bizum' ? 'Bizum' :
+                     (presupuesto as any).metodo_pago === 'paypal' ? 'PayPal' :
+                     (presupuesto as any).metodo_pago === 'domiciliacion' ? 'Domiciliación bancaria' :
+                     (presupuesto as any).metodo_pago}
+                  </p>
+                )}
+                {config?.condiciones_pago && (
+                  <p className="text-muted-foreground whitespace-pre-wrap">{config.condiciones_pago}</p>
+                )}
+                {((presupuesto as any).metodo_pago === 'transferencia' || (presupuesto as any).metodo_pago === 'domiciliacion') && (config?.iban || config?.cuenta_bancaria) && (
+                  <div className="mt-2 p-2 bg-muted/50 rounded text-xs">
+                    <p className="font-medium mb-1">Datos bancarios:</p>
+                    {config?.iban && <p>IBAN: {config.iban}</p>}
+                    {config?.cuenta_bancaria && <p>Cuenta: {config.cuenta_bancaria}</p>}
+                  </div>
+                )}
+              </CardContent>
+            </Card>
+          )}
         </div>
       </div>
     </div>
