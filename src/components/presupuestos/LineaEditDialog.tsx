@@ -5,6 +5,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
+import { Switch } from "@/components/ui/switch";
 import { useProducto, useCalcularPrecio } from "@/hooks/useProductos";
 import { formatCurrency, formatNumber } from "@/lib/formatters";
 
@@ -31,10 +32,13 @@ export function LineaEditDialog({ open, linea, onClose, onSave }: LineaEditDialo
   const [cantidadStr, setCantidadStr] = useState("1");
   const [tipoCantidad, setTipoCantidad] = useState("metros");
   const [descripcion, setDescripcion] = useState("");
+  const [precioManual, setPrecioManual] = useState(false);
+  const [importeManualStr, setImporteManualStr] = useState("");
 
   const { data: producto } = useProducto(linea?.producto_id || undefined);
   
   const cantidad = cantidadStr === '' ? 0 : Number(cantidadStr);
+  const importeManual = importeManualStr === '' ? 0 : Number(importeManualStr);
   
   const { data: precio, isLoading: loadingPrecio } = useCalcularPrecio(
     linea?.producto_id || undefined,
@@ -48,20 +52,34 @@ export function LineaEditDialog({ open, linea, onClose, onSave }: LineaEditDialo
       setCantidadStr(String(linea.cantidad));
       setTipoCantidad(linea.tipo_cantidad);
       setDescripcion(linea.descripcion || "");
+      setPrecioManual(false);
+      setImporteManualStr("");
     }
   }, [linea]);
 
   const handleSave = () => {
-    if (!linea || !precio) return;
+    if (!linea) return;
 
-    onSave({
-      ...linea,
-      cantidad,
-      tipo_cantidad: tipoCantidad,
-      descripcion,
-      precio_unitario: precio.precio_unitario,
-      importe: precio.importe_total
-    });
+    if (precioManual && importeManual > 0) {
+      const precioUnitario = cantidad > 0 ? importeManual / cantidad : importeManual;
+      onSave({
+        ...linea,
+        cantidad,
+        tipo_cantidad: tipoCantidad,
+        descripcion,
+        precio_unitario: precioUnitario,
+        importe: importeManual
+      });
+    } else if (precio) {
+      onSave({
+        ...linea,
+        cantidad,
+        tipo_cantidad: tipoCantidad,
+        descripcion,
+        precio_unitario: precio.precio_unitario,
+        importe: precio.importe_total
+      });
+    }
     onClose();
   };
 
@@ -73,6 +91,10 @@ export function LineaEditDialog({ open, linea, onClose, onSave }: LineaEditDialo
       default: return 'placas';
     }
   };
+
+  const canSave = precioManual 
+    ? importeManual > 0 && cantidad > 0
+    : precio && cantidad > 0;
 
   if (!linea) return null;
 
@@ -131,45 +153,83 @@ export function LineaEditDialog({ open, linea, onClose, onSave }: LineaEditDialo
             </div>
           )}
 
-          {/* Price Breakdown */}
-          {loadingPrecio ? (
-            <div className="text-sm text-muted-foreground">Calculando precio...</div>
-          ) : precio ? (
-            <div className="bg-muted/50 rounded-lg p-4 space-y-2">
-              <h4 className="font-medium text-sm">Cálculo del precio</h4>
-              {precio.desglose.precio_fijo !== undefined && precio.desglose.precio_fijo > 0 && (
-                <div className="flex justify-between text-sm">
-                  <span>Precio base (1er m²):</span>
-                  <span>{formatCurrency(precio.desglose.precio_fijo)}</span>
-                </div>
-              )}
-              {precio.desglose.importe_metro_2 !== undefined && precio.desglose.importe_metro_2 > 0 && (
-                <div className="flex justify-between text-sm">
-                  <span>2º metro:</span>
-                  <span>{formatCurrency(precio.desglose.importe_metro_2)}</span>
-                </div>
-              )}
-              {precio.desglose.metros_tarifa_1 !== undefined && precio.desglose.metros_tarifa_1 > 0 && (
-                <div className="flex justify-between text-sm">
-                  <span>{formatNumber(precio.desglose.metros_tarifa_1)} m² × {formatCurrency(precio.desglose.precio_metro_tarifa_1 || 0)}:</span>
-                  <span>{formatCurrency(precio.desglose.importe_tarifa_1 || 0)}</span>
-                </div>
-              )}
-              {precio.desglose.metros_tarifa_2 !== undefined && precio.desglose.metros_tarifa_2 > 0 && (
-                <div className="flex justify-between text-sm">
-                  <span>{formatNumber(precio.desglose.metros_tarifa_2)} m² × {formatCurrency(precio.desglose.precio_metro_tarifa_2 || 0)}:</span>
-                  <span>{formatCurrency(precio.desglose.importe_tarifa_2 || 0)}</span>
-                </div>
-              )}
-              <div className="flex justify-between font-medium border-t pt-2">
-                <span>TOTAL:</span>
-                <span className="text-primary">{formatCurrency(precio.importe_total)}</span>
-              </div>
+          {/* Manual Price Toggle */}
+          <div className="flex items-center justify-between p-3 bg-muted/30 rounded-lg">
+            <div className="space-y-0.5">
+              <Label htmlFor="precio-manual-edit" className="text-sm font-medium">
+                Precio manual
+              </Label>
               <p className="text-xs text-muted-foreground">
-                Precio medio: {formatCurrency(precio.precio_unitario)}/{getUnitLabel()}
+                Introduce un importe personalizado
               </p>
             </div>
-          ) : null}
+            <Switch
+              id="precio-manual-edit"
+              checked={precioManual}
+              onCheckedChange={setPrecioManual}
+            />
+          </div>
+
+          {/* Manual Price Input */}
+          {precioManual ? (
+            <div className="space-y-2">
+              <Label>Importe total (€)</Label>
+              <Input
+                type="number"
+                min={0}
+                step={0.01}
+                value={importeManualStr}
+                onChange={e => setImporteManualStr(e.target.value)}
+                placeholder="0.00"
+                className="text-lg font-medium"
+              />
+              {cantidad > 0 && importeManual > 0 && (
+                <p className="text-xs text-muted-foreground">
+                  Precio unitario: {formatCurrency(importeManual / cantidad)}/{getUnitLabel()}
+                </p>
+              )}
+            </div>
+          ) : (
+            /* Price Breakdown */
+            loadingPrecio ? (
+              <div className="text-sm text-muted-foreground">Calculando precio...</div>
+            ) : precio ? (
+              <div className="bg-muted/50 rounded-lg p-4 space-y-2">
+                <h4 className="font-medium text-sm">Cálculo del precio</h4>
+                {precio.desglose.precio_fijo !== undefined && precio.desglose.precio_fijo > 0 && (
+                  <div className="flex justify-between text-sm">
+                    <span>Precio base (1er m²):</span>
+                    <span>{formatCurrency(precio.desglose.precio_fijo)}</span>
+                  </div>
+                )}
+                {precio.desglose.importe_metro_2 !== undefined && precio.desglose.importe_metro_2 > 0 && (
+                  <div className="flex justify-between text-sm">
+                    <span>2º metro:</span>
+                    <span>{formatCurrency(precio.desglose.importe_metro_2)}</span>
+                  </div>
+                )}
+                {precio.desglose.metros_tarifa_1 !== undefined && precio.desglose.metros_tarifa_1 > 0 && (
+                  <div className="flex justify-between text-sm">
+                    <span>{formatNumber(precio.desglose.metros_tarifa_1)} m² × {formatCurrency(precio.desglose.precio_metro_tarifa_1 || 0)}:</span>
+                    <span>{formatCurrency(precio.desglose.importe_tarifa_1 || 0)}</span>
+                  </div>
+                )}
+                {precio.desglose.metros_tarifa_2 !== undefined && precio.desglose.metros_tarifa_2 > 0 && (
+                  <div className="flex justify-between text-sm">
+                    <span>{formatNumber(precio.desglose.metros_tarifa_2)} m² × {formatCurrency(precio.desglose.precio_metro_tarifa_2 || 0)}:</span>
+                    <span>{formatCurrency(precio.desglose.importe_tarifa_2 || 0)}</span>
+                  </div>
+                )}
+                <div className="flex justify-between font-medium border-t pt-2">
+                  <span>TOTAL:</span>
+                  <span className="text-primary">{formatCurrency(precio.importe_total)}</span>
+                </div>
+                <p className="text-xs text-muted-foreground">
+                  Precio medio: {formatCurrency(precio.precio_unitario)}/{getUnitLabel()}
+                </p>
+              </div>
+            ) : null
+          )}
 
           {/* Description */}
           <div className="space-y-2">
@@ -187,7 +247,7 @@ export function LineaEditDialog({ open, linea, onClose, onSave }: LineaEditDialo
             <Button variant="outline" onClick={onClose}>Cancelar</Button>
             <Button 
               onClick={handleSave} 
-              disabled={!precio || cantidad <= 0}
+              disabled={!canSave}
             >
               Guardar Cambios
             </Button>
