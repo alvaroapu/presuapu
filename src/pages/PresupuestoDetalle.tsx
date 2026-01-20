@@ -2,14 +2,15 @@ import { useParams, useNavigate, Link } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { ArrowLeft, Edit, Copy, FileDown, Receipt } from "lucide-react";
+import { ArrowLeft, Edit, Copy, Receipt } from "lucide-react";
 import { usePresupuesto, usePresupuestoLineas, useUpdatePresupuesto } from "@/hooks/usePresupuestos";
 import { useEmpresaConfig } from "@/hooks/useEmpresaConfig";
-import { formatCurrency, formatDate, getEstadoColor, getEstadoLabel, getTipoUnidad } from "@/lib/formatters";
+import { formatCurrency, formatDate, getEstadoColor, getTipoUnidad } from "@/lib/formatters";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { useToast } from "@/hooks/use-toast";
 import { PDFDownloadButton } from "@/components/pdf/PDFDownloadButton";
+import { PresupuestoPDF } from "@/components/pdf/PresupuestoPDF";
 import { useConvertirPresupuestoAFactura } from "@/hooks/useFacturas";
 
 export default function PresupuestoDetalle() {
@@ -106,9 +107,8 @@ export default function PresupuestoDetalle() {
           </Button>
           {config && lineas && (
             <PDFDownloadButton 
-              presupuesto={presupuesto} 
-              lineas={lineas} 
-              config={config}
+              document={<PresupuestoPDF presupuesto={presupuesto} lineas={lineas} config={config} />}
+              fileName={`${presupuesto.numero}.pdf`}
             />
           )}
           {presupuesto.estado !== 'facturado' && presupuesto.estado !== 'cancelado' && (

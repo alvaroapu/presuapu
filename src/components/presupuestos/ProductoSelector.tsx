@@ -247,37 +247,43 @@ export function ProductoSelector({ open, onClose, onAdd }: ProductoSelectorProps
                 </div>
               )}
 
-              {/* Price Breakdown */}
-              {precio && (
-                <div className="bg-muted/50 rounded-lg p-4 space-y-2">
-                  <h4 className="font-medium text-sm">Cálculo del precio</h4>
-                  {precio.desglose.precio_fijo !== undefined && precio.desglose.precio_fijo > 0 && (
-                    <div className="flex justify-between text-sm">
-                      <span>Precio fijo:</span>
-                      <span>{formatCurrency(precio.desglose.precio_fijo)}</span>
+              {/* Price Breakdown - Fixed height container */}
+              <div className="bg-muted/50 rounded-lg p-4 min-h-[140px]">
+                {precio ? (
+                  <div className="space-y-2">
+                    <h4 className="font-medium text-sm">Cálculo del precio</h4>
+                    {precio.desglose.precio_fijo !== undefined && precio.desglose.precio_fijo > 0 && (
+                      <div className="flex justify-between text-sm">
+                        <span>Precio fijo:</span>
+                        <span>{formatCurrency(precio.desglose.precio_fijo)}</span>
+                      </div>
+                    )}
+                    {precio.desglose.metros_tarifa_1 !== undefined && (
+                      <div className="flex justify-between text-sm">
+                        <span>{formatNumber(precio.desglose.metros_tarifa_1)} m² × {formatCurrency(precio.desglose.precio_metro_tarifa_1 || 0)}/m²:</span>
+                        <span>{formatCurrency(precio.desglose.importe_tarifa_1 || 0)}</span>
+                      </div>
+                    )}
+                    {precio.desglose.metros_tarifa_2 !== undefined && precio.desglose.metros_tarifa_2 > 0 && (
+                      <div className="flex justify-between text-sm">
+                        <span>{formatNumber(precio.desglose.metros_tarifa_2)} m² × {formatCurrency(precio.desglose.precio_metro_tarifa_2 || 0)}/m²:</span>
+                        <span>{formatCurrency(precio.desglose.importe_tarifa_2 || 0)}</span>
+                      </div>
+                    )}
+                    <div className="flex justify-between font-medium border-t pt-2">
+                      <span>TOTAL:</span>
+                      <span>{formatCurrency(precio.importe_total)}</span>
                     </div>
-                  )}
-                  {precio.desglose.metros_tarifa_1 !== undefined && (
-                    <div className="flex justify-between text-sm">
-                      <span>{formatNumber(precio.desglose.metros_tarifa_1)} m² × {formatCurrency(precio.desglose.precio_metro_tarifa_1 || 0)}/m²:</span>
-                      <span>{formatCurrency(precio.desglose.importe_tarifa_1 || 0)}</span>
-                    </div>
-                  )}
-                  {precio.desglose.metros_tarifa_2 !== undefined && precio.desglose.metros_tarifa_2 > 0 && (
-                    <div className="flex justify-between text-sm">
-                      <span>{formatNumber(precio.desglose.metros_tarifa_2)} m² × {formatCurrency(precio.desglose.precio_metro_tarifa_2 || 0)}/m²:</span>
-                      <span>{formatCurrency(precio.desglose.importe_tarifa_2 || 0)}</span>
-                    </div>
-                  )}
-                  <div className="flex justify-between font-medium border-t pt-2">
-                    <span>TOTAL:</span>
-                    <span>{formatCurrency(precio.importe_total)}</span>
+                    <p className="text-xs text-muted-foreground">
+                      Precio medio: {formatCurrency(precio.precio_unitario)}/{tipoCantidad === 'metros' ? 'm²' : tipoCantidad === 'horas' ? 'h' : 'ud'}
+                    </p>
                   </div>
-                  <p className="text-xs text-muted-foreground">
-                    Precio medio: {formatCurrency(precio.precio_unitario)}/{tipoCantidad === 'metros' ? 'm²' : tipoCantidad === 'horas' ? 'h' : 'ud'}
-                  </p>
-                </div>
-              )}
+                ) : (
+                  <div className="flex items-center justify-center h-full text-muted-foreground text-sm">
+                    Introduce una cantidad para ver el cálculo
+                  </div>
+                )}
+              </div>
 
               {/* Description */}
               <div className="space-y-2">

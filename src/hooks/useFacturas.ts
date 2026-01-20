@@ -47,6 +47,7 @@ export interface FacturaLinea {
   precio_unitario: number;
   importe: number;
   orden: number | null;
+  created_at?: string | null;
 }
 
 interface FiltrosFactura {

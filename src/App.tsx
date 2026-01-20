@@ -11,6 +11,8 @@ import PresupuestoNuevo from "@/pages/PresupuestoNuevo";
 import PresupuestoDetalle from "@/pages/PresupuestoDetalle";
 import PresupuestoEditar from "@/pages/PresupuestoEditar";
 import PresupuestoDuplicar from "@/pages/PresupuestoDuplicar";
+import Facturas from "@/pages/Facturas";
+import FacturaDetalle from "@/pages/FacturaDetalle";
 import Clientes from "@/pages/Clientes";
 import ClienteNuevo from "@/pages/ClienteNuevo";
 import ClienteDetalle from "@/pages/ClienteDetalle";
@@ -39,6 +41,8 @@ const App = () => (
             <Route path="presupuestos/:id" element={<PresupuestoDetalle />} />
             <Route path="presupuestos/:id/editar" element={<PresupuestoEditar />} />
             <Route path="presupuestos/:id/duplicar" element={<PresupuestoDuplicar />} />
+            <Route path="facturas" element={<Facturas />} />
+            <Route path="facturas/:id" element={<FacturaDetalle />} />
             <Route path="clientes" element={<Clientes />} />
             <Route path="clientes/nuevo" element={<ClienteNuevo />} />
             <Route path="clientes/:id" element={<ClienteDetalle />} />
