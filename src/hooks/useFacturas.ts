@@ -207,6 +207,121 @@ export function useUpdateFactura() {
   });
 }
 
+export function useDeleteFacturaLineas() {
+  const queryClient = useQueryClient();
+  
+  return useMutation({
+    mutationFn: async (facturaId: string) => {
+      const { error } = await supabase
+        .from('factura_lineas')
+        .delete()
+        .eq('factura_id', facturaId);
+      
+      if (error) throw error;
+    },
+    onSuccess: (_, facturaId) => {
+      queryClient.invalidateQueries({ queryKey: ['factura-lineas', facturaId] });
+    }
+  });
+}
+
+export function useCreateFacturaLineas() {
+  const queryClient = useQueryClient();
+  
+  return useMutation({
+    mutationFn: async (lineas: Omit<FacturaLinea, 'id' | 'created_at'>[]) => {
+      if (lineas.length === 0) return [];
+      const { data, error } = await supabase
+        .from('factura_lineas')
+        .insert(lineas)
+        .select();
+      
+      if (error) throw error;
+      return data;
+    },
+    onSuccess: (_, variables) => {
+      if (variables.length > 0) {
+        queryClient.invalidateQueries({ queryKey: ['factura-lineas', variables[0].factura_id] });
+        queryClient.invalidateQueries({ queryKey: ['facturas'] });
+      }
+    }
+  });
+}
+
+// Hook para estadísticas de facturación
+export function useFacturasStats() {
+  return useQuery({
+    queryKey: ['facturas-stats'],
+    queryFn: async () => {
+      const currentDate = new Date();
+      const currentYear = currentDate.getFullYear();
+      
+      // Get all invoices for current year
+      const { data: facturas, error } = await supabase
+        .from('facturas')
+        .select('*')
+        .gte('fecha_emision', `${currentYear}-01-01`)
+        .lte('fecha_emision', `${currentYear}-12-31`);
+      
+      if (error) throw error;
+      
+      // Calculate stats
+      const totalFacturado = facturas?.reduce((acc, f) => acc + (f.total || 0), 0) || 0;
+      const pagadas = facturas?.filter(f => f.estado === 'pagada') || [];
+      const pendientes = facturas?.filter(f => f.estado === 'emitida') || [];
+      const vencidas = facturas?.filter(f => f.estado === 'vencida') || [];
+      const anuladas = facturas?.filter(f => f.estado === 'anulada') || [];
+      
+      const totalPagado = pagadas.reduce((acc, f) => acc + (f.total || 0), 0);
+      const totalPendiente = pendientes.reduce((acc, f) => acc + (f.total || 0), 0);
+      const totalVencido = vencidas.reduce((acc, f) => acc + (f.total || 0), 0);
+      
+      // Group by month
+      const porMes = Array.from({ length: 12 }, (_, i) => {
+        const mes = i + 1;
+        const facturasMes = facturas?.filter(f => {
+          const fecha = new Date(f.fecha_emision);
+          return fecha.getMonth() + 1 === mes;
+        }) || [];
+        
+        return {
+          mes,
+          total: facturasMes.reduce((acc, f) => acc + (f.total || 0), 0),
+          pagado: facturasMes.filter(f => f.estado === 'pagada').reduce((acc, f) => acc + (f.total || 0), 0),
+          pendiente: facturasMes.filter(f => f.estado === 'emitida').reduce((acc, f) => acc + (f.total || 0), 0),
+          cantidad: facturasMes.length
+        };
+      });
+      
+      // Facturas próximas a vencer (7 días)
+      const hoy = new Date();
+      const en7Dias = new Date(hoy);
+      en7Dias.setDate(en7Dias.getDate() + 7);
+      
+      const proximasAVencer = pendientes.filter(f => {
+        if (!f.fecha_vencimiento) return false;
+        const vencimiento = new Date(f.fecha_vencimiento);
+        return vencimiento >= hoy && vencimiento <= en7Dias;
+      });
+      
+      return {
+        totalFacturado,
+        totalPagado,
+        totalPendiente,
+        totalVencido,
+        cantidadTotal: facturas?.length || 0,
+        cantidadPagadas: pagadas.length,
+        cantidadPendientes: pendientes.length,
+        cantidadVencidas: vencidas.length,
+        cantidadAnuladas: anuladas.length,
+        porMes,
+        proximasAVencer,
+        vencidasRecientes: vencidas.slice(0, 5)
+      };
+    }
+  });
+}
+
 export function useConvertirPresupuestoAFactura() {
   const queryClient = useQueryClient();
   

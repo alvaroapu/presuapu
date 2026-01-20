@@ -2,6 +2,7 @@ import {
   LayoutDashboard, 
   FileText, 
   Receipt,
+  BarChart3,
   Users, 
   Package, 
   Settings,
@@ -29,6 +30,7 @@ const menuItems = [
   { title: "Dashboard", url: "/", icon: LayoutDashboard },
   { title: "Presupuestos", url: "/presupuestos", icon: FileText },
   { title: "Facturas", url: "/facturas", icon: Receipt },
+  { title: "Facturación", url: "/facturas/dashboard", icon: BarChart3 },
   { title: "Clientes", url: "/clientes", icon: Users },
   { title: "Catálogo", url: "/catalogo", icon: Package },
 ];
