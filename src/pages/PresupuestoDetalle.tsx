@@ -5,7 +5,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { ArrowLeft, Edit, Copy, Receipt } from "lucide-react";
 import { usePresupuesto, usePresupuestoLineas, useUpdatePresupuesto } from "@/hooks/usePresupuestos";
 import { useEmpresaConfig } from "@/hooks/useEmpresaConfig";
-import { formatCurrency, formatDate, getEstadoColor, getTipoUnidad } from "@/lib/formatters";
+import { formatCurrency, formatDate, getEstadoColor, getTipoUnidad, getMetodoPagoLabel } from "@/lib/formatters";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { useToast } from "@/hooks/use-toast";
@@ -276,15 +276,7 @@ export default function PresupuestoDetalle() {
               {(presupuesto as any).metodo_pago && (
                 <div className="flex justify-between">
                   <span className="text-muted-foreground">Método de pago:</span>
-                  <span>
-                    {(presupuesto as any).metodo_pago === 'transferencia' ? 'Transferencia bancaria' :
-                     (presupuesto as any).metodo_pago === 'efectivo' ? 'Efectivo' :
-                     (presupuesto as any).metodo_pago === 'tarjeta' ? 'Tarjeta de crédito/débito' :
-                     (presupuesto as any).metodo_pago === 'bizum' ? 'Bizum' :
-                     (presupuesto as any).metodo_pago === 'paypal' ? 'PayPal' :
-                     (presupuesto as any).metodo_pago === 'domiciliacion' ? 'Domiciliación bancaria' :
-                     (presupuesto as any).metodo_pago}
-                  </span>
+                  <span>{getMetodoPagoLabel((presupuesto as any).metodo_pago)}</span>
                 </div>
               )}
             </CardContent>
@@ -300,13 +292,7 @@ export default function PresupuestoDetalle() {
                 {(presupuesto as any).metodo_pago && (
                   <p>
                     <span className="font-medium">Forma de pago: </span>
-                    {(presupuesto as any).metodo_pago === 'transferencia' ? 'Transferencia bancaria' :
-                     (presupuesto as any).metodo_pago === 'efectivo' ? 'Efectivo' :
-                     (presupuesto as any).metodo_pago === 'tarjeta' ? 'Tarjeta de crédito/débito' :
-                     (presupuesto as any).metodo_pago === 'bizum' ? 'Bizum' :
-                     (presupuesto as any).metodo_pago === 'paypal' ? 'PayPal' :
-                     (presupuesto as any).metodo_pago === 'domiciliacion' ? 'Domiciliación bancaria' :
-                     (presupuesto as any).metodo_pago}
+                    {getMetodoPagoLabel((presupuesto as any).metodo_pago)}
                   </p>
                 )}
                 {config?.condiciones_pago && (

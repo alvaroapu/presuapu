@@ -1,7 +1,7 @@
 import { useParams, Link } from "react-router-dom";
 import { useFactura, useFacturaLineas, useUpdateFactura } from "@/hooks/useFacturas";
 import { useEmpresaConfig } from "@/hooks/useEmpresaConfig";
-import { formatCurrency, formatDate, getTipoUnidad, getEstadoFacturaColor, getEstadoFacturaLabel } from "@/lib/formatters";
+import { formatCurrency, formatDate, getTipoUnidad, getEstadoFacturaColor, getEstadoFacturaLabel, getMetodoPagoLabel } from "@/lib/formatters";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -256,7 +256,7 @@ export default function FacturaDetalle() {
               {(factura as any).metodo_pago && (
                 <div className="flex justify-between text-sm text-muted-foreground pt-2">
                   <span>Método de pago:</span>
-                  <span className="capitalize">{(factura as any).metodo_pago === 'transferencia' ? 'Transferencia bancaria' : (factura as any).metodo_pago}</span>
+                  <span>{getMetodoPagoLabel((factura as any).metodo_pago)}</span>
                 </div>
               )}
             </div>
@@ -274,13 +274,7 @@ export default function FacturaDetalle() {
             {(factura as any).metodo_pago && (
               <p>
                 <span className="font-medium">Forma de pago: </span>
-                {(factura as any).metodo_pago === 'transferencia' ? 'Transferencia bancaria' :
-                 (factura as any).metodo_pago === 'efectivo' ? 'Efectivo' :
-                 (factura as any).metodo_pago === 'tarjeta' ? 'Tarjeta de crédito/débito' :
-                 (factura as any).metodo_pago === 'bizum' ? 'Bizum' :
-                 (factura as any).metodo_pago === 'paypal' ? 'PayPal' :
-                 (factura as any).metodo_pago === 'domiciliacion' ? 'Domiciliación bancaria' :
-                 (factura as any).metodo_pago}
+                {getMetodoPagoLabel((factura as any).metodo_pago)}
               </p>
             )}
             {config?.condiciones_pago && (

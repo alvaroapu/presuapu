@@ -113,3 +113,23 @@ export function getEstadoFacturaLabel(estado: string): string {
       return estado;
   }
 }
+
+export function getMetodoPagoLabel(metodo: string | null | undefined): string {
+  if (!metodo) return '';
+  switch (metodo) {
+    case 'transferencia':
+      return 'Transferencia bancaria';
+    case 'efectivo':
+      return 'Efectivo';
+    case 'tarjeta':
+      return 'Tarjeta de crédito/débito';
+    case 'bizum':
+      return 'Bizum';
+    case 'paypal':
+      return 'PayPal';
+    case 'domiciliacion':
+      return 'Domiciliación bancaria';
+    default:
+      return metodo;
+  }
+}
