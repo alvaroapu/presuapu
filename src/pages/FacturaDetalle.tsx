@@ -14,7 +14,7 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
-import { ArrowLeft, CheckCircle, XCircle, Clock } from "lucide-react";
+import { ArrowLeft, CheckCircle, XCircle, Clock, Edit } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import { PDFDownloadButton } from "@/components/pdf/PDFDownloadButton";
 import { FacturaPDF } from "@/components/pdf/FacturaPDF";
@@ -81,6 +81,14 @@ export default function FacturaDetalle() {
         </div>
 
         <div className="flex items-center gap-2">
+          {(factura.estado === 'emitida' || factura.estado === 'vencida') && (
+            <Button variant="outline" asChild>
+              <Link to={`/facturas/${id}/editar`}>
+                <Edit className="w-4 h-4 mr-2" />
+                Editar
+              </Link>
+            </Button>
+          )}
           {factura.estado === 'emitida' && (
             <>
               <Button
