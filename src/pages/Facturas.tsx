@@ -2,7 +2,7 @@ import { Link } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
-import { Search, MoreHorizontal, Eye, FileDown } from "lucide-react";
+import { Search, MoreHorizontal, Eye, Edit, FileDown } from "lucide-react";
 import { useFacturas, useUpdateFactura } from "@/hooks/useFacturas";
 import { formatCurrency, formatDate, getEstadoFacturaColor, getEstadoFacturaLabel } from "@/lib/formatters";
 import { Skeleton } from "@/components/ui/skeleton";
@@ -148,6 +148,13 @@ export default function Facturas() {
                         <Eye className="w-4 h-4 mr-2" /> Ver
                       </Link>
                     </DropdownMenuItem>
+                    {f.estado !== 'pagada' && f.estado !== 'anulada' && (
+                      <DropdownMenuItem asChild>
+                        <Link to={`/facturas/${f.id}/editar`}>
+                          <Edit className="w-4 h-4 mr-2" /> Editar
+                        </Link>
+                      </DropdownMenuItem>
+                    )}
                     <DropdownMenuItem asChild>
                       <Link to={`/facturas/${f.id}`}>
                         <FileDown className="w-4 h-4 mr-2" /> PDF
