@@ -416,3 +416,31 @@ export function useConvertirPresupuestoAFactura() {
     }
   });
 }
+
+export function useDeleteFactura() {
+  const queryClient = useQueryClient();
+  
+  return useMutation({
+    mutationFn: async (id: string) => {
+      // First delete the lines
+      const { error: lineasError } = await supabase
+        .from('factura_lineas')
+        .delete()
+        .eq('factura_id', id);
+      
+      if (lineasError) throw lineasError;
+      
+      // Then delete the factura
+      const { error } = await supabase
+        .from('facturas')
+        .delete()
+        .eq('id', id);
+      
+      if (error) throw error;
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['facturas'] });
+      queryClient.invalidateQueries({ queryKey: ['facturas-stats'] });
+    }
+  });
+}

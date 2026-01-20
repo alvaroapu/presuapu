@@ -279,3 +279,31 @@ export function useRecalcularTotales() {
     }
   });
 }
+
+export function useDeletePresupuesto() {
+  const queryClient = useQueryClient();
+  
+  return useMutation({
+    mutationFn: async (id: string) => {
+      // First delete the lines
+      const { error: lineasError } = await supabase
+        .from('presupuesto_lineas')
+        .delete()
+        .eq('presupuesto_id', id);
+      
+      if (lineasError) throw lineasError;
+      
+      // Then delete the presupuesto
+      const { error } = await supabase
+        .from('presupuestos')
+        .delete()
+        .eq('id', id);
+      
+      if (error) throw error;
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['presupuestos'] });
+      queryClient.invalidateQueries({ queryKey: ['resumen-mensual'] });
+    }
+  });
+}
