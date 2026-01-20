@@ -9,6 +9,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { useToast } from "@/hooks/use-toast";
 import { useState, useEffect } from "react";
 import { Building2, FileText, Receipt } from "lucide-react";
+import { LogoUploader } from "@/components/configuracion/LogoUploader";
 
 export default function Configuracion() {
   const { data: config, isLoading } = useEmpresaConfig();
@@ -24,6 +25,7 @@ export default function Configuracion() {
     telefono: '',
     email: '',
     web: '',
+    logo_url: null as string | null,
     prefijo_presupuesto: 'PRES',
     iva_porcentaje: 21,
     validez_dias: 30,
@@ -48,6 +50,7 @@ export default function Configuracion() {
         telefono: config.telefono || '',
         email: config.email || '',
         web: config.web || '',
+        logo_url: config.logo_url || null,
         prefijo_presupuesto: config.prefijo_presupuesto || 'PRES',
         iva_porcentaje: config.iva_porcentaje || 21,
         validez_dias: config.validez_dias || 30,
@@ -110,6 +113,18 @@ export default function Configuracion() {
         </TabsList>
 
         <TabsContent value="empresa" className="space-y-6">
+          <Card>
+            <CardHeader>
+              <CardTitle>Logo de la Empresa</CardTitle>
+            </CardHeader>
+            <CardContent>
+              <LogoUploader 
+                currentLogoUrl={form.logo_url} 
+                onLogoChange={(url) => setForm({...form, logo_url: url})}
+              />
+            </CardContent>
+          </Card>
+
           <Card>
             <CardHeader>
               <CardTitle>Datos de la Empresa</CardTitle>
