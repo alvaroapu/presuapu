@@ -1,26 +1,18 @@
 import { PDFDownloadLink } from '@react-pdf/renderer';
 import { Button } from '@/components/ui/button';
 import { FileDown, Loader2 } from 'lucide-react';
-import { PresupuestoPDF } from './PresupuestoPDF';
-import type { Tables } from '@/integrations/supabase/types';
+import { ReactElement } from 'react';
 
 interface PDFDownloadButtonProps {
-  presupuesto: Tables<'presupuestos'>;
-  lineas: Tables<'presupuesto_lineas'>[];
-  config: Tables<'empresa_config'>;
+  document: ReactElement;
+  fileName: string;
 }
 
-export function PDFDownloadButton({ presupuesto, lineas, config }: PDFDownloadButtonProps) {
+export function PDFDownloadButton({ document, fileName }: PDFDownloadButtonProps) {
   return (
     <PDFDownloadLink
-      document={
-        <PresupuestoPDF 
-          presupuesto={presupuesto} 
-          lineas={lineas} 
-          config={config} 
-        />
-      }
-      fileName={`${presupuesto.numero}.pdf`}
+      document={document}
+      fileName={fileName}
     >
       {({ loading }) => (
         <Button variant="outline" disabled={loading}>

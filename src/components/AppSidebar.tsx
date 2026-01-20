@@ -1,6 +1,7 @@
 import { 
   LayoutDashboard, 
   FileText, 
+  Receipt,
   Users, 
   Package, 
   Settings,
@@ -27,6 +28,7 @@ import logo from "@/assets/logo.png";
 const menuItems = [
   { title: "Dashboard", url: "/", icon: LayoutDashboard },
   { title: "Presupuestos", url: "/presupuestos", icon: FileText },
+  { title: "Facturas", url: "/facturas", icon: Receipt },
   { title: "Clientes", url: "/clientes", icon: Users },
   { title: "Catálogo", url: "/catalogo", icon: Package },
 ];
