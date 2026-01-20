@@ -1,4 +1,4 @@
-import { Document, Page, Text, View, StyleSheet, Font } from '@react-pdf/renderer';
+import { Document, Page, Text, View, StyleSheet, Font, Image } from '@react-pdf/renderer';
 import type { Tables } from '@/integrations/supabase/types';
 import { getMetodoPagoLabel } from '@/lib/formatters';
 
@@ -18,6 +18,17 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     justifyContent: 'space-between',
     marginBottom: 30,
+  },
+  headerLeft: {
+    flexDirection: 'row',
+    flex: 1,
+    alignItems: 'flex-start',
+  },
+  logo: {
+    width: 60,
+    height: 60,
+    marginRight: 12,
+    objectFit: 'contain',
   },
   empresa: {
     flex: 1,
@@ -248,15 +259,20 @@ export function FacturaPDF({ factura, lineas, config }: FacturaPDFProps) {
 
         {/* Header */}
         <View style={styles.header}>
-          <View style={styles.empresa}>
-            <Text style={styles.empresaNombre}>{config.nombre_empresa}</Text>
-            <Text style={styles.empresaInfo}>
-              {config.cif && `CIF: ${config.cif}\n`}
-              {config.direccion && `${config.direccion}\n`}
-              {config.ciudad && `${config.codigo_postal} ${config.ciudad}\n`}
-              {config.telefono && `Tel: ${config.telefono}\n`}
-              {config.email}
-            </Text>
+          <View style={styles.headerLeft}>
+            {config.logo_url && (
+              <Image style={styles.logo} src={config.logo_url} />
+            )}
+            <View style={styles.empresa}>
+              <Text style={styles.empresaNombre}>{config.nombre_empresa}</Text>
+              <Text style={styles.empresaInfo}>
+                {config.cif && `CIF: ${config.cif}\n`}
+                {config.direccion && `${config.direccion}\n`}
+                {config.ciudad && `${config.codigo_postal} ${config.ciudad}\n`}
+                {config.telefono && `Tel: ${config.telefono}\n`}
+                {config.email}
+              </Text>
+            </View>
           </View>
           <View style={styles.facturaInfo}>
             <Text style={styles.titulo}>FACTURA</Text>
