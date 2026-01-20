@@ -1,5 +1,6 @@
 import { Document, Page, Text, View, StyleSheet, Font } from '@react-pdf/renderer';
 import type { Tables } from '@/integrations/supabase/types';
+import { getMetodoPagoLabel } from '@/lib/formatters';
 
 Font.register({
   family: 'Helvetica',
@@ -342,13 +343,7 @@ export function FacturaPDF({ factura, lineas, config }: FacturaPDFProps) {
           <View style={styles.notas}>
             <Text style={styles.notasTitulo}>FORMA DE PAGO</Text>
             <Text style={styles.notasTexto}>
-              {(factura as any).metodo_pago === 'transferencia' ? 'Transferencia bancaria' :
-               (factura as any).metodo_pago === 'efectivo' ? 'Efectivo' :
-               (factura as any).metodo_pago === 'tarjeta' ? 'Tarjeta de crédito/débito' :
-               (factura as any).metodo_pago === 'bizum' ? 'Bizum' :
-               (factura as any).metodo_pago === 'paypal' ? 'PayPal' :
-               (factura as any).metodo_pago === 'domiciliacion' ? 'Domiciliación bancaria' :
-               (factura as any).metodo_pago}
+              {getMetodoPagoLabel((factura as any).metodo_pago)}
             </Text>
           </View>
         )}

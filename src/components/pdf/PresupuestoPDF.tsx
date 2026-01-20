@@ -1,5 +1,6 @@
 import { Document, Page, Text, View, StyleSheet, Font } from '@react-pdf/renderer';
 import type { Tables } from '@/integrations/supabase/types';
+import { getMetodoPagoLabel } from '@/lib/formatters';
 
 // Register default font
 Font.register({
@@ -308,13 +309,7 @@ export function PresupuestoPDF({ presupuesto, lineas, config }: PresupuestoPDFPr
           <View style={styles.notas}>
             <Text style={styles.notasTitulo}>FORMA DE PAGO</Text>
             <Text style={styles.notasTexto}>
-              {(presupuesto as any).metodo_pago === 'transferencia' ? 'Transferencia bancaria' :
-               (presupuesto as any).metodo_pago === 'efectivo' ? 'Efectivo' :
-               (presupuesto as any).metodo_pago === 'tarjeta' ? 'Tarjeta de crédito/débito' :
-               (presupuesto as any).metodo_pago === 'bizum' ? 'Bizum' :
-               (presupuesto as any).metodo_pago === 'paypal' ? 'PayPal' :
-               (presupuesto as any).metodo_pago === 'domiciliacion' ? 'Domiciliación bancaria' :
-               (presupuesto as any).metodo_pago}
+              {getMetodoPagoLabel((presupuesto as any).metodo_pago)}
             </Text>
           </View>
         )}
