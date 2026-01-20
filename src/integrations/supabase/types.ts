@@ -114,15 +114,21 @@ export type Database = {
           codigo_postal: string | null
           condiciones_pago: string | null
           created_at: string | null
+          cuenta_bancaria: string | null
           direccion: string | null
           email: string | null
+          iban: string | null
           id: string
           iva_porcentaje: number | null
           logo_url: string | null
           nombre_empresa: string
           pie_presupuesto: string | null
+          prefijo_factura: string | null
           prefijo_presupuesto: string | null
+          siguiente_numero_factura: number | null
           telefono: string | null
+          texto_factura_cabecera: string | null
+          texto_factura_pie: string | null
           updated_at: string | null
           validez_dias: number | null
           web: string | null
@@ -133,15 +139,21 @@ export type Database = {
           codigo_postal?: string | null
           condiciones_pago?: string | null
           created_at?: string | null
+          cuenta_bancaria?: string | null
           direccion?: string | null
           email?: string | null
+          iban?: string | null
           id?: string
           iva_porcentaje?: number | null
           logo_url?: string | null
           nombre_empresa: string
           pie_presupuesto?: string | null
+          prefijo_factura?: string | null
           prefijo_presupuesto?: string | null
+          siguiente_numero_factura?: number | null
           telefono?: string | null
+          texto_factura_cabecera?: string | null
+          texto_factura_pie?: string | null
           updated_at?: string | null
           validez_dias?: number | null
           web?: string | null
@@ -152,20 +164,222 @@ export type Database = {
           codigo_postal?: string | null
           condiciones_pago?: string | null
           created_at?: string | null
+          cuenta_bancaria?: string | null
           direccion?: string | null
           email?: string | null
+          iban?: string | null
           id?: string
           iva_porcentaje?: number | null
           logo_url?: string | null
           nombre_empresa?: string
           pie_presupuesto?: string | null
+          prefijo_factura?: string | null
           prefijo_presupuesto?: string | null
+          siguiente_numero_factura?: number | null
           telefono?: string | null
+          texto_factura_cabecera?: string | null
+          texto_factura_pie?: string | null
           updated_at?: string | null
           validez_dias?: number | null
           web?: string | null
         }
         Relationships: []
+      }
+      factura_lineas: {
+        Row: {
+          cantidad: number
+          created_at: string | null
+          descripcion: string | null
+          factura_id: string
+          id: string
+          importe: number
+          orden: number | null
+          precio_unitario: number
+          producto_categoria: string | null
+          producto_id: string | null
+          producto_nombre: string
+          tipo_cantidad: string
+        }
+        Insert: {
+          cantidad: number
+          created_at?: string | null
+          descripcion?: string | null
+          factura_id: string
+          id?: string
+          importe: number
+          orden?: number | null
+          precio_unitario: number
+          producto_categoria?: string | null
+          producto_id?: string | null
+          producto_nombre: string
+          tipo_cantidad?: string
+        }
+        Update: {
+          cantidad?: number
+          created_at?: string | null
+          descripcion?: string | null
+          factura_id?: string
+          id?: string
+          importe?: number
+          orden?: number | null
+          precio_unitario?: number
+          producto_categoria?: string | null
+          producto_id?: string | null
+          producto_nombre?: string
+          tipo_cantidad?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "factura_lineas_factura_id_fkey"
+            columns: ["factura_id"]
+            isOneToOne: false
+            referencedRelation: "facturas"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "factura_lineas_factura_id_fkey"
+            columns: ["factura_id"]
+            isOneToOne: false
+            referencedRelation: "v_facturas_completas"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "factura_lineas_producto_id_fkey"
+            columns: ["producto_id"]
+            isOneToOne: false
+            referencedRelation: "productos"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "factura_lineas_producto_id_fkey"
+            columns: ["producto_id"]
+            isOneToOne: false
+            referencedRelation: "v_productos_con_categoria"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      facturas: {
+        Row: {
+          base_imponible: number | null
+          cliente_ciudad: string | null
+          cliente_codigo_postal: string | null
+          cliente_direccion: string | null
+          cliente_documento: string | null
+          cliente_email: string | null
+          cliente_id: string | null
+          cliente_nombre: string
+          cliente_nombre_comercial: string | null
+          cliente_telefono: string | null
+          created_at: string | null
+          descuento_importe: number | null
+          descuento_tipo: string | null
+          descuento_valor: number | null
+          estado: string | null
+          fecha_emision: string
+          fecha_pago: string | null
+          fecha_vencimiento: string | null
+          id: string
+          iva_importe: number | null
+          iva_porcentaje: number | null
+          notas: string | null
+          notas_internas: string | null
+          numero: string
+          presupuesto_id: string | null
+          subtotal: number | null
+          total: number | null
+          updated_at: string | null
+        }
+        Insert: {
+          base_imponible?: number | null
+          cliente_ciudad?: string | null
+          cliente_codigo_postal?: string | null
+          cliente_direccion?: string | null
+          cliente_documento?: string | null
+          cliente_email?: string | null
+          cliente_id?: string | null
+          cliente_nombre: string
+          cliente_nombre_comercial?: string | null
+          cliente_telefono?: string | null
+          created_at?: string | null
+          descuento_importe?: number | null
+          descuento_tipo?: string | null
+          descuento_valor?: number | null
+          estado?: string | null
+          fecha_emision?: string
+          fecha_pago?: string | null
+          fecha_vencimiento?: string | null
+          id?: string
+          iva_importe?: number | null
+          iva_porcentaje?: number | null
+          notas?: string | null
+          notas_internas?: string | null
+          numero: string
+          presupuesto_id?: string | null
+          subtotal?: number | null
+          total?: number | null
+          updated_at?: string | null
+        }
+        Update: {
+          base_imponible?: number | null
+          cliente_ciudad?: string | null
+          cliente_codigo_postal?: string | null
+          cliente_direccion?: string | null
+          cliente_documento?: string | null
+          cliente_email?: string | null
+          cliente_id?: string | null
+          cliente_nombre?: string
+          cliente_nombre_comercial?: string | null
+          cliente_telefono?: string | null
+          created_at?: string | null
+          descuento_importe?: number | null
+          descuento_tipo?: string | null
+          descuento_valor?: number | null
+          estado?: string | null
+          fecha_emision?: string
+          fecha_pago?: string | null
+          fecha_vencimiento?: string | null
+          id?: string
+          iva_importe?: number | null
+          iva_porcentaje?: number | null
+          notas?: string | null
+          notas_internas?: string | null
+          numero?: string
+          presupuesto_id?: string | null
+          subtotal?: number | null
+          total?: number | null
+          updated_at?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "facturas_cliente_id_fkey"
+            columns: ["cliente_id"]
+            isOneToOne: false
+            referencedRelation: "clientes"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "facturas_cliente_id_fkey"
+            columns: ["cliente_id"]
+            isOneToOne: false
+            referencedRelation: "v_clientes_con_stats"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "facturas_presupuesto_id_fkey"
+            columns: ["presupuesto_id"]
+            isOneToOne: false
+            referencedRelation: "presupuestos"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "facturas_presupuesto_id_fkey"
+            columns: ["presupuesto_id"]
+            isOneToOne: false
+            referencedRelation: "v_presupuestos_completos"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       presupuesto_lineas: {
         Row: {
@@ -461,6 +675,71 @@ export type Database = {
         }
         Relationships: []
       }
+      v_facturas_completas: {
+        Row: {
+          base_imponible: number | null
+          cliente_ciudad: string | null
+          cliente_codigo_postal: string | null
+          cliente_direccion: string | null
+          cliente_documento: string | null
+          cliente_email: string | null
+          cliente_email_actual: string | null
+          cliente_id: string | null
+          cliente_nombre: string | null
+          cliente_nombre_comercial: string | null
+          cliente_telefono: string | null
+          cliente_telefono_actual: string | null
+          created_at: string | null
+          descuento_importe: number | null
+          descuento_tipo: string | null
+          descuento_valor: number | null
+          estado: string | null
+          fecha_emision: string | null
+          fecha_pago: string | null
+          fecha_vencimiento: string | null
+          id: string | null
+          iva_importe: number | null
+          iva_porcentaje: number | null
+          notas: string | null
+          notas_internas: string | null
+          num_lineas: number | null
+          numero: string | null
+          presupuesto_id: string | null
+          subtotal: number | null
+          total: number | null
+          updated_at: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "facturas_cliente_id_fkey"
+            columns: ["cliente_id"]
+            isOneToOne: false
+            referencedRelation: "clientes"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "facturas_cliente_id_fkey"
+            columns: ["cliente_id"]
+            isOneToOne: false
+            referencedRelation: "v_clientes_con_stats"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "facturas_presupuesto_id_fkey"
+            columns: ["presupuesto_id"]
+            isOneToOne: false
+            referencedRelation: "presupuestos"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "facturas_presupuesto_id_fkey"
+            columns: ["presupuesto_id"]
+            isOneToOne: false
+            referencedRelation: "v_presupuestos_completos"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       v_presupuestos_completos: {
         Row: {
           base_imponible: number | null
@@ -574,6 +853,7 @@ export type Database = {
           precio_unitario: number
         }[]
       }
+      generar_numero_factura: { Args: never; Returns: string }
       generar_numero_presupuesto: { Args: never; Returns: string }
       is_authenticated: { Args: never; Returns: boolean }
       recalcular_totales_presupuesto: {

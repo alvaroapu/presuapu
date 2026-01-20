@@ -10,7 +10,8 @@ import { formatCurrency } from "@/lib/formatters";
 import { useCategorias } from "@/hooks/useCategorias";
 import { useCreateProducto } from "@/hooks/useProductos";
 import { useToast } from "@/hooks/use-toast";
-import { Save, Package } from "lucide-react";
+import { Save, Package, History, X } from "lucide-react";
+import { Badge } from "@/components/ui/badge";
 
 interface LineaLocal {
   id: string;
@@ -22,6 +23,13 @@ interface LineaLocal {
   descripcion: string;
   precio_unitario: number;
   importe: number;
+}
+
+interface ProductoReciente {
+  nombre: string;
+  tipoCantidad: string;
+  precioUnitario: number;
+  descripcion?: string;
 }
 
 interface ProductoPersonalizadoDialogProps {
@@ -36,6 +44,30 @@ const TIPOS_CANTIDAD = [
   { value: 'horas', label: 'Horas', suffix: 'h' },
 ];
 
+const STORAGE_KEY = 'productos_personalizados_recientes';
+const MAX_RECIENTES = 10;
+
+function getProductosRecientes(): ProductoReciente[] {
+  try {
+    const stored = localStorage.getItem(STORAGE_KEY);
+    return stored ? JSON.parse(stored) : [];
+  } catch {
+    return [];
+  }
+}
+
+function saveProductoReciente(producto: ProductoReciente) {
+  try {
+    const recientes = getProductosRecientes().filter(
+      p => p.nombre.toLowerCase() !== producto.nombre.toLowerCase()
+    );
+    recientes.unshift(producto);
+    localStorage.setItem(STORAGE_KEY, JSON.stringify(recientes.slice(0, MAX_RECIENTES)));
+  } catch {
+    // Ignore storage errors
+  }
+}
+
 export function ProductoPersonalizadoDialog({ open, onClose, onAdd }: ProductoPersonalizadoDialogProps) {
   const { data: categorias } = useCategorias();
   const createProducto = useCreateProducto();
@@ -49,12 +81,13 @@ export function ProductoPersonalizadoDialog({ open, onClose, onAdd }: ProductoPe
   const [guardarEnCatalogo, setGuardarEnCatalogo] = useState(false);
   const [categoriaId, setCategoriaId] = useState<string>("");
   const [saving, setSaving] = useState(false);
+  const [productosRecientes, setProductosRecientes] = useState<ProductoReciente[]>([]);
 
   const cantidad = cantidadStr === '' ? 0 : Number(cantidadStr);
   const precioUnitario = precioUnitarioStr === '' ? 0 : Number(precioUnitarioStr);
   const importe = cantidad * precioUnitario;
 
-  // Reset on open
+  // Load recent products on open
   useEffect(() => {
     if (open) {
       setNombre("");
@@ -65,8 +98,16 @@ export function ProductoPersonalizadoDialog({ open, onClose, onAdd }: ProductoPe
       setGuardarEnCatalogo(false);
       setCategoriaId("");
       setSaving(false);
+      setProductosRecientes(getProductosRecientes());
     }
   }, [open]);
+
+  const handleSelectReciente = (producto: ProductoReciente) => {
+    setNombre(producto.nombre);
+    setTipoCantidad(producto.tipoCantidad);
+    setPrecioUnitarioStr(producto.precioUnitario.toString());
+    if (producto.descripcion) setDescripcion(producto.descripcion);
+  };
 
   const tipoSeleccionado = TIPOS_CANTIDAD.find(t => t.value === tipoCantidad);
 
@@ -78,9 +119,17 @@ export function ProductoPersonalizadoDialog({ open, onClose, onAdd }: ProductoPe
 
     setSaving(true);
     let productoId: string | null = null;
-    let categoriaNombre = "Personalizado";
+    let categoriaNombre = "Servicios";
 
     try {
+      // Guardar en historial de recientes
+      saveProductoReciente({
+        nombre: nombre.trim(),
+        tipoCantidad,
+        precioUnitario,
+        descripcion: descripcion.trim() || undefined
+      });
+
       // Si quiere guardar en catálogo, primero creamos el producto
       if (guardarEnCatalogo && categoriaId) {
         const tipoCalculo = tipoCantidad === 'metros' ? 'por_metro' : 
@@ -140,6 +189,28 @@ export function ProductoPersonalizadoDialog({ open, onClose, onAdd }: ProductoPe
         </DialogHeader>
 
         <div className="space-y-4">
+          {/* Productos recientes */}
+          {productosRecientes.length > 0 && !nombre && (
+            <div className="space-y-2">
+              <Label className="flex items-center gap-2">
+                <History className="w-4 h-4" />
+                Productos recientes
+              </Label>
+              <div className="flex flex-wrap gap-2">
+                {productosRecientes.slice(0, 5).map((p, i) => (
+                  <Badge 
+                    key={i}
+                    variant="secondary"
+                    className="cursor-pointer hover:bg-secondary/80 transition-colors"
+                    onClick={() => handleSelectReciente(p)}
+                  >
+                    {p.nombre} - {formatCurrency(p.precioUnitario)}
+                  </Badge>
+                ))}
+              </div>
+            </div>
+          )}
+
           {/* Nombre */}
           <div className="space-y-2">
             <Label htmlFor="nombre">Nombre del producto *</Label>

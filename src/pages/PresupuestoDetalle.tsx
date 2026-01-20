@@ -2,7 +2,7 @@ import { useParams, useNavigate, Link } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { ArrowLeft, Edit, Copy, FileDown } from "lucide-react";
+import { ArrowLeft, Edit, Copy, FileDown, Receipt } from "lucide-react";
 import { usePresupuesto, usePresupuestoLineas, useUpdatePresupuesto } from "@/hooks/usePresupuestos";
 import { useEmpresaConfig } from "@/hooks/useEmpresaConfig";
 import { formatCurrency, formatDate, getEstadoColor, getEstadoLabel, getTipoUnidad } from "@/lib/formatters";
@@ -10,6 +10,7 @@ import { Skeleton } from "@/components/ui/skeleton";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { useToast } from "@/hooks/use-toast";
 import { PDFDownloadButton } from "@/components/pdf/PDFDownloadButton";
+import { useConvertirPresupuestoAFactura } from "@/hooks/useFacturas";
 
 export default function PresupuestoDetalle() {
   const { id } = useParams();
@@ -19,6 +20,7 @@ export default function PresupuestoDetalle() {
   const { data: lineas, isLoading: loadingLineas } = usePresupuestoLineas(id);
   const { data: config } = useEmpresaConfig();
   const updatePresupuesto = useUpdatePresupuesto();
+  const convertirAFactura = useConvertirPresupuestoAFactura();
 
   const cambiarEstado = async (estado: string) => {
     if (!id) return;
@@ -27,6 +29,16 @@ export default function PresupuestoDetalle() {
       toast({ title: "Estado actualizado" });
     } catch {
       toast({ title: "Error al actualizar", variant: "destructive" });
+    }
+  };
+
+  const handleConvertirAFactura = async () => {
+    if (!id) return;
+    try {
+      const factura = await convertirAFactura.mutateAsync({ presupuestoId: id });
+      toast({ title: `Factura ${factura.numero} creada correctamente` });
+    } catch {
+      toast({ title: "Error al crear factura", variant: "destructive" });
     }
   };
 
@@ -98,6 +110,16 @@ export default function PresupuestoDetalle() {
               lineas={lineas} 
               config={config}
             />
+          )}
+          {presupuesto.estado !== 'facturado' && presupuesto.estado !== 'cancelado' && (
+            <Button 
+              variant="default"
+              onClick={handleConvertirAFactura}
+              disabled={convertirAFactura.isPending}
+            >
+              <Receipt className="w-4 h-4 mr-2" />
+              {convertirAFactura.isPending ? 'Creando...' : 'Convertir a Factura'}
+            </Button>
           )}
         </div>
       </div>
