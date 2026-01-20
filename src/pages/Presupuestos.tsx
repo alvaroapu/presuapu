@@ -2,8 +2,9 @@ import { Link } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
-import { Plus, Search, MoreHorizontal, Eye, Edit, Copy, FileDown } from "lucide-react";
+import { Plus, Search, MoreHorizontal, Eye, Edit, Copy, FileDown, Receipt } from "lucide-react";
 import { usePresupuestos, useUpdatePresupuesto } from "@/hooks/usePresupuestos";
+import { useConvertirPresupuestoAFactura } from "@/hooks/useFacturas";
 import { formatCurrency, formatDate, getEstadoColor, getEstadoLabel } from "@/lib/formatters";
 import { Skeleton } from "@/components/ui/skeleton";
 import { useState } from "react";
@@ -25,6 +26,7 @@ export default function Presupuestos() {
     mes: mesFiltro !== "todos" ? parseInt(mesFiltro) : undefined
   });
   const updatePresupuesto = useUpdatePresupuesto();
+  const convertirAFactura = useConvertirPresupuestoAFactura();
   const { toast } = useToast();
 
   const años = Array.from({ length: 10 }, (_, i) => currentYear - i);
@@ -49,6 +51,15 @@ export default function Presupuestos() {
       toast({ title: "Estado actualizado" });
     } catch {
       toast({ title: "Error al actualizar", variant: "destructive" });
+    }
+  };
+
+  const handleConvertirAFactura = async (id: string) => {
+    try {
+      const factura = await convertirAFactura.mutateAsync({ presupuestoId: id });
+      toast({ title: `Factura ${factura.numero} creada correctamente` });
+    } catch {
+      toast({ title: "Error al crear factura", variant: "destructive" });
     }
   };
 
@@ -110,12 +121,12 @@ export default function Presupuestos() {
         </Select>
       </div>
 
-      <div className="border rounded-lg">
-        <div className="grid grid-cols-[1fr_1fr_auto_auto_auto_auto] gap-4 p-4 border-b bg-muted/50 font-medium text-sm">
+      <div className="border rounded-lg overflow-x-auto">
+        <div className="grid grid-cols-[140px_1fr_100px_110px_100px_48px] gap-4 p-4 border-b bg-muted/50 font-medium text-sm min-w-[700px]">
           <div>Nº Presupuesto</div>
           <div>Cliente</div>
           <div className="text-right">Total</div>
-          <div>Estado</div>
+          <div className="text-center">Estado</div>
           <div>Fecha</div>
           <div></div>
         </div>
@@ -130,11 +141,11 @@ export default function Presupuestos() {
           </div>
         ) : (
           presupuestos?.map((p) => (
-            <div key={p.id} className="grid grid-cols-[1fr_1fr_auto_auto_auto_auto] gap-4 p-4 border-b last:border-0 items-center hover:bg-muted/30">
+            <div key={p.id} className="grid grid-cols-[140px_1fr_100px_110px_100px_48px] gap-4 p-4 border-b last:border-0 items-center hover:bg-muted/30 min-w-[700px]">
               <div className="font-mono text-sm">{p.numero}</div>
               <div className="font-medium truncate">{p.cliente_nombre}</div>
               <div className="text-right font-medium">{formatCurrency(p.total || 0)}</div>
-              <div>
+              <div className="text-center">
                 <Badge variant="outline" className={getEstadoColor(p.estado || '')}>
                   {getEstadoLabel(p.estado || '')}
                 </Badge>
@@ -168,6 +179,18 @@ export default function Presupuestos() {
                         <FileDown className="w-4 h-4 mr-2" /> PDF
                       </Link>
                     </DropdownMenuItem>
+                    {p.estado !== 'facturado' && p.estado !== 'cancelado' && (
+                      <>
+                        <DropdownMenuSeparator />
+                        <DropdownMenuItem 
+                          onClick={() => handleConvertirAFactura(p.id!)}
+                          disabled={convertirAFactura.isPending}
+                        >
+                          <Receipt className="w-4 h-4 mr-2" /> 
+                          {convertirAFactura.isPending ? 'Creando...' : 'Convertir a Factura'}
+                        </DropdownMenuItem>
+                      </>
+                    )}
                     <DropdownMenuSeparator />
                     <DropdownMenuItem onClick={() => cambiarEstado(p.id!, 'enviado')}>
                       Marcar como Enviado

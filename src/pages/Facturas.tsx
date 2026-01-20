@@ -105,12 +105,12 @@ export default function Facturas() {
         </Select>
       </div>
 
-      <div className="border rounded-lg">
-        <div className="grid grid-cols-[1fr_1fr_auto_auto_auto_auto] gap-4 p-4 border-b bg-muted/50 font-medium text-sm">
+      <div className="border rounded-lg overflow-x-auto">
+        <div className="grid grid-cols-[120px_1fr_100px_100px_100px_48px] gap-4 p-4 border-b bg-muted/50 font-medium text-sm min-w-[650px]">
           <div>Nº Factura</div>
           <div>Cliente</div>
           <div className="text-right">Total</div>
-          <div>Estado</div>
+          <div className="text-center">Estado</div>
           <div>Fecha</div>
           <div></div>
         </div>
@@ -125,11 +125,11 @@ export default function Facturas() {
           </div>
         ) : (
           facturas?.map((f) => (
-            <div key={f.id} className="grid grid-cols-[1fr_1fr_auto_auto_auto_auto] gap-4 p-4 border-b last:border-0 items-center hover:bg-muted/30">
+            <div key={f.id} className="grid grid-cols-[120px_1fr_100px_100px_100px_48px] gap-4 p-4 border-b last:border-0 items-center hover:bg-muted/30 min-w-[650px]">
               <div className="font-mono text-sm">{f.numero}</div>
               <div className="font-medium truncate">{f.cliente_nombre}</div>
               <div className="text-right font-medium">{formatCurrency(f.total || 0)}</div>
-              <div>
+              <div className="text-center">
                 <Badge variant="outline" className={getEstadoFacturaColor(f.estado || '')}>
                   {getEstadoFacturaLabel(f.estado || '')}
                 </Badge>
