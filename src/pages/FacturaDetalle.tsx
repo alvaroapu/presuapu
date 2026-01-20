@@ -135,7 +135,7 @@ export default function FacturaDetalle() {
             {factura.cliente_nombre_comercial && (
               <p className="text-muted-foreground">{factura.cliente_nombre_comercial}</p>
             )}
-            {factura.cliente_documento && <p>NIF/CIF: {factura.cliente_documento}</p>}
+            {factura.cliente_documento && <p>{factura.cliente_documento}</p>}
             {factura.cliente_direccion && <p>{factura.cliente_direccion}</p>}
             {factura.cliente_ciudad && (
               <p>

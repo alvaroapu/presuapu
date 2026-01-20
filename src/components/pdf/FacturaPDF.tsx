@@ -274,7 +274,7 @@ export function FacturaPDF({ factura, lineas, config }: FacturaPDFProps) {
             <Text style={styles.clienteNombre}>{factura.cliente_nombre}</Text>
             <Text style={styles.clienteInfo}>
               {factura.cliente_nombre_comercial && `${factura.cliente_nombre_comercial}\n`}
-              {factura.cliente_documento && `NIF/CIF: ${factura.cliente_documento}\n`}
+              {factura.cliente_documento && `${factura.cliente_documento}\n`}
               {factura.cliente_direccion && `${factura.cliente_direccion}\n`}
               {factura.cliente_ciudad && `${factura.cliente_codigo_postal} ${factura.cliente_ciudad}\n`}
               {factura.cliente_telefono && `Tel: ${factura.cliente_telefono} `}
@@ -337,8 +337,24 @@ export function FacturaPDF({ factura, lineas, config }: FacturaPDFProps) {
           </View>
         </View>
 
-        {/* Datos bancarios */}
-        {(config.cuenta_bancaria || config.iban) && (
+        {/* Método de pago */}
+        {(factura as any).metodo_pago && (
+          <View style={styles.notas}>
+            <Text style={styles.notasTitulo}>FORMA DE PAGO</Text>
+            <Text style={styles.notasTexto}>
+              {(factura as any).metodo_pago === 'transferencia' ? 'Transferencia bancaria' :
+               (factura as any).metodo_pago === 'efectivo' ? 'Efectivo' :
+               (factura as any).metodo_pago === 'tarjeta' ? 'Tarjeta de crédito/débito' :
+               (factura as any).metodo_pago === 'bizum' ? 'Bizum' :
+               (factura as any).metodo_pago === 'paypal' ? 'PayPal' :
+               (factura as any).metodo_pago === 'domiciliacion' ? 'Domiciliación bancaria' :
+               (factura as any).metodo_pago}
+            </Text>
+          </View>
+        )}
+
+        {/* Datos bancarios (solo si método es transferencia o domiciliación) */}
+        {((factura as any).metodo_pago === 'transferencia' || (factura as any).metodo_pago === 'domiciliacion') && (config.cuenta_bancaria || config.iban) && (
           <View style={styles.datosBancarios}>
             <Text style={styles.datosBancariosTitulo}>DATOS PARA EL PAGO</Text>
             <Text style={styles.datosBancariosInfo}>
