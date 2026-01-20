@@ -3,6 +3,7 @@ import {
   FileText, 
   Receipt,
   BarChart3,
+  Clock,
   Users, 
   Package, 
   Settings,
@@ -31,6 +32,7 @@ const menuItems = [
   { title: "Presupuestos", url: "/presupuestos", icon: FileText },
   { title: "Facturas", url: "/facturas", icon: Receipt },
   { title: "Facturación", url: "/facturas/dashboard", icon: BarChart3 },
+  { title: "Cobros Pendientes", url: "/facturas/cobros-pendientes", icon: Clock },
   { title: "Clientes", url: "/clientes", icon: Users },
   { title: "Catálogo", url: "/catalogo", icon: Package },
 ];
