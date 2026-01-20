@@ -2,8 +2,8 @@ import { Link } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
-import { Plus, Search, MoreHorizontal, Eye, Edit, Copy, FileDown, Receipt } from "lucide-react";
-import { usePresupuestos, useUpdatePresupuesto } from "@/hooks/usePresupuestos";
+import { Plus, Search, MoreHorizontal, Eye, Edit, Copy, FileDown, Receipt, Trash2 } from "lucide-react";
+import { usePresupuestos, useUpdatePresupuesto, useDeletePresupuesto } from "@/hooks/usePresupuestos";
 import { useConvertirPresupuestoAFactura } from "@/hooks/useFacturas";
 import { formatCurrency, formatDate, getEstadoColor, getEstadoLabel } from "@/lib/formatters";
 import { Skeleton } from "@/components/ui/skeleton";
@@ -11,6 +11,16 @@ import { useState } from "react";
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuSeparator, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
 import { useToast } from "@/hooks/use-toast";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from "@/components/ui/alert-dialog";
 
 export default function Presupuestos() {
   const currentYear = new Date().getFullYear();
@@ -18,6 +28,7 @@ export default function Presupuestos() {
   const [estadoFiltro, setEstadoFiltro] = useState<string>("todos");
   const [añoFiltro, setAñoFiltro] = useState<number>(currentYear);
   const [mesFiltro, setMesFiltro] = useState<string>("todos");
+  const [deleteId, setDeleteId] = useState<string | null>(null);
   
   const { data: presupuestos, isLoading } = usePresupuestos({
     busqueda: busqueda || undefined,
@@ -26,6 +37,7 @@ export default function Presupuestos() {
     mes: mesFiltro !== "todos" ? parseInt(mesFiltro) : undefined
   });
   const updatePresupuesto = useUpdatePresupuesto();
+  const deletePresupuesto = useDeletePresupuesto();
   const convertirAFactura = useConvertirPresupuestoAFactura();
   const { toast } = useToast();
 
@@ -63,17 +75,49 @@ export default function Presupuestos() {
     }
   };
 
+  const handleDelete = async () => {
+    if (!deleteId) return;
+    try {
+      await deletePresupuesto.mutateAsync(deleteId);
+      toast({ title: "Presupuesto eliminado" });
+      setDeleteId(null);
+    } catch {
+      toast({ title: "Error al eliminar", variant: "destructive" });
+    }
+  };
+
   return (
-    <div className="space-y-6">
-      <div className="flex items-center justify-between">
-        <h1 className="text-3xl font-bold">Presupuestos</h1>
-        <Button asChild>
-          <Link to="/presupuestos/nuevo">
-            <Plus className="w-4 h-4 mr-2" />
-            Nuevo Presupuesto
-          </Link>
-        </Button>
-      </div>
+    <>
+      <AlertDialog open={!!deleteId} onOpenChange={(open) => !open && setDeleteId(null)}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>¿Eliminar presupuesto?</AlertDialogTitle>
+            <AlertDialogDescription>
+              Esta acción no se puede deshacer. Se eliminarán el presupuesto y todas sus líneas.
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel>Cancelar</AlertDialogCancel>
+            <AlertDialogAction 
+              onClick={handleDelete}
+              className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
+            >
+              Eliminar
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
+
+      <div className="space-y-6">
+        <div className="flex items-center justify-between">
+          <h1 className="text-3xl font-bold">Presupuestos</h1>
+          <Button asChild>
+            <Link to="/presupuestos/nuevo">
+              <Plus className="w-4 h-4 mr-2" />
+              Nuevo Presupuesto
+            </Link>
+          </Button>
+        </div>
 
       <div className="flex flex-wrap gap-4">
         <div className="relative flex-1 min-w-[200px] max-w-md">
@@ -201,6 +245,13 @@ export default function Presupuestos() {
                     <DropdownMenuItem onClick={() => cambiarEstado(p.id!, 'rechazado')}>
                       Marcar como Rechazado
                     </DropdownMenuItem>
+                    <DropdownMenuSeparator />
+                    <DropdownMenuItem 
+                      onClick={() => setDeleteId(p.id!)}
+                      className="text-destructive focus:text-destructive"
+                    >
+                      <Trash2 className="w-4 h-4 mr-2" /> Eliminar
+                    </DropdownMenuItem>
                   </DropdownMenuContent>
                 </DropdownMenu>
               </div>
@@ -209,5 +260,6 @@ export default function Presupuestos() {
         )}
       </div>
     </div>
+    </>
   );
 }

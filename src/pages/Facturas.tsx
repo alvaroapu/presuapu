@@ -2,8 +2,8 @@ import { Link } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
-import { Search, MoreHorizontal, Eye, Edit, FileDown } from "lucide-react";
-import { useFacturas, useUpdateFactura } from "@/hooks/useFacturas";
+import { Search, MoreHorizontal, Eye, Edit, FileDown, Trash2 } from "lucide-react";
+import { useFacturas, useUpdateFactura, useDeleteFactura } from "@/hooks/useFacturas";
 import { formatCurrency, formatDate, getEstadoFacturaColor, getEstadoFacturaLabel } from "@/lib/formatters";
 import { Skeleton } from "@/components/ui/skeleton";
 import { useState } from "react";
@@ -11,6 +11,16 @@ import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuSepara
 import { useToast } from "@/hooks/use-toast";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { ExportFacturas } from "@/components/facturas/ExportFacturas";
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from "@/components/ui/alert-dialog";
 
 export default function Facturas() {
   const currentYear = new Date().getFullYear();
@@ -18,6 +28,7 @@ export default function Facturas() {
   const [estadoFiltro, setEstadoFiltro] = useState<string>("todos");
   const [añoFiltro, setAñoFiltro] = useState<number>(currentYear);
   const [mesFiltro, setMesFiltro] = useState<string>("todos");
+  const [deleteId, setDeleteId] = useState<string | null>(null);
   
   const { data: facturas, isLoading } = useFacturas({
     busqueda: busqueda || undefined,
@@ -26,6 +37,7 @@ export default function Facturas() {
     mes: mesFiltro !== "todos" ? parseInt(mesFiltro) : undefined
   });
   const updateFactura = useUpdateFactura();
+  const deleteFactura = useDeleteFactura();
   const { toast } = useToast();
 
   const años = Array.from({ length: 10 }, (_, i) => currentYear - i);
@@ -53,23 +65,55 @@ export default function Facturas() {
     }
   };
 
-  return (
-    <div className="space-y-6">
-      <div className="flex items-center justify-between">
-        <h1 className="text-3xl font-bold">Facturas</h1>
-        <ExportFacturas />
-      </div>
+  const handleDelete = async () => {
+    if (!deleteId) return;
+    try {
+      await deleteFactura.mutateAsync(deleteId);
+      toast({ title: "Factura eliminada" });
+      setDeleteId(null);
+    } catch {
+      toast({ title: "Error al eliminar", variant: "destructive" });
+    }
+  };
 
-      <div className="flex flex-wrap gap-4">
-        <div className="relative flex-1 min-w-[200px] max-w-md">
-          <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
-          <Input
-            placeholder="Buscar por número o cliente..."
-            className="pl-10"
-            value={busqueda}
-            onChange={(e) => setBusqueda(e.target.value)}
-          />
+  return (
+    <>
+      <AlertDialog open={!!deleteId} onOpenChange={(open) => !open && setDeleteId(null)}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>¿Eliminar factura?</AlertDialogTitle>
+            <AlertDialogDescription>
+              Esta acción no se puede deshacer. Se eliminarán la factura y todas sus líneas.
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel>Cancelar</AlertDialogCancel>
+            <AlertDialogAction 
+              onClick={handleDelete}
+              className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
+            >
+              Eliminar
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
+
+      <div className="space-y-6">
+        <div className="flex items-center justify-between">
+          <h1 className="text-3xl font-bold">Facturas</h1>
+          <ExportFacturas />
         </div>
+
+        <div className="flex flex-wrap gap-4">
+          <div className="relative flex-1 min-w-[200px] max-w-md">
+            <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
+            <Input
+              placeholder="Buscar por número o cliente..."
+              className="pl-10"
+              value={busqueda}
+              onChange={(e) => setBusqueda(e.target.value)}
+            />
+          </div>
         <Select value={añoFiltro.toString()} onValueChange={(v) => setAñoFiltro(parseInt(v))}>
           <SelectTrigger className="w-28">
             <SelectValue placeholder="Año" />
@@ -170,13 +214,21 @@ export default function Facturas() {
                     <DropdownMenuItem onClick={() => cambiarEstado(f.id!, 'anulada')}>
                       Marcar como Anulada
                     </DropdownMenuItem>
+                    <DropdownMenuSeparator />
+                    <DropdownMenuItem 
+                      onClick={() => setDeleteId(f.id!)}
+                      className="text-destructive focus:text-destructive"
+                    >
+                      <Trash2 className="w-4 h-4 mr-2" /> Eliminar
+                    </DropdownMenuItem>
                   </DropdownMenuContent>
                 </DropdownMenu>
               </div>
             </div>
           ))
         )}
+        </div>
       </div>
-    </div>
+    </>
   );
 }
