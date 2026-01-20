@@ -163,14 +163,14 @@ export default function PresupuestoDetalle() {
                 </div>
               ) : (
                 <div className="border rounded-lg">
-                  <div className="grid grid-cols-[1fr_auto_auto_auto] gap-4 p-3 border-b bg-muted/50 font-medium text-sm">
+                  <div className="grid grid-cols-[1fr_100px_100px_100px] gap-4 p-3 border-b bg-muted/50 font-medium text-sm">
                     <div>Concepto</div>
                     <div className="text-right">Cantidad</div>
                     <div className="text-right">P. Unit.</div>
                     <div className="text-right">Importe</div>
                   </div>
                   {lineas?.map((linea) => (
-                    <div key={linea.id} className="grid grid-cols-[1fr_auto_auto_auto] gap-4 p-3 border-b last:border-0">
+                    <div key={linea.id} className="grid grid-cols-[1fr_100px_100px_100px] gap-4 p-3 border-b last:border-0">
                       <div>
                         <p className="font-medium">{linea.producto_nombre}</p>
                         {linea.descripcion && (
