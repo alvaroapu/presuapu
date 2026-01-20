@@ -110,6 +110,7 @@ export default function FacturaEditar() {
   const [ivaPorcentaje, setIvaPorcentaje] = useState(21);
   const [notas, setNotas] = useState('');
   const [notasInternas, setNotasInternas] = useState('');
+  const [metodoPago, setMetodoPago] = useState('transferencia');
   const [showProductSelector, setShowProductSelector] = useState(false);
   const [editingLinea, setEditingLinea] = useState<LineaLocal | null>(null);
   const [saving, setSaving] = useState(false);
@@ -127,6 +128,7 @@ export default function FacturaEditar() {
       setIvaPorcentaje(factura.iva_porcentaje || 21);
       setNotas(factura.notas || '');
       setNotasInternas(factura.notas_internas || '');
+      setMetodoPago((factura as any).metodo_pago || 'transferencia');
     }
   }, [factura]);
 
@@ -197,8 +199,9 @@ export default function FacturaEditar() {
         iva_importe: ivaImporte,
         total,
         notas,
-        notas_internas: notasInternas
-      });
+        notas_internas: notasInternas,
+        metodo_pago: metodoPago
+      } as any);
 
       // Delete old lines and insert new ones
       await deleteLineas.mutateAsync(id);
@@ -419,9 +422,28 @@ export default function FacturaEditar() {
                   value={ivaPorcentaje}
                   onChange={(e) => setIvaPorcentaje(Number(e.target.value))}
                 />
-                <p className="text-sm text-muted-foreground text-right">
-                  {formatCurrency(ivaImporte)}
-                </p>
+                {ivaPorcentaje > 0 && (
+                  <p className="text-sm text-muted-foreground text-right">
+                    {formatCurrency(ivaImporte)}
+                  </p>
+                )}
+              </div>
+
+              <div className="space-y-2">
+                <Label>Método de pago</Label>
+                <Select value={metodoPago} onValueChange={setMetodoPago}>
+                  <SelectTrigger>
+                    <SelectValue />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="transferencia">Transferencia bancaria</SelectItem>
+                    <SelectItem value="efectivo">Efectivo</SelectItem>
+                    <SelectItem value="tarjeta">Tarjeta de crédito/débito</SelectItem>
+                    <SelectItem value="bizum">Bizum</SelectItem>
+                    <SelectItem value="paypal">PayPal</SelectItem>
+                    <SelectItem value="domiciliacion">Domiciliación bancaria</SelectItem>
+                  </SelectContent>
+                </Select>
               </div>
 
               <div className="flex justify-between text-lg font-bold border-t pt-4">

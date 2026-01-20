@@ -325,10 +325,12 @@ export function FacturaPDF({ factura, lineas, config }: FacturaPDFProps) {
             <Text>BASE IMPONIBLE:</Text>
             <Text>{formatCurrency(factura.base_imponible)}</Text>
           </View>
-          <View style={styles.totalRow}>
-            <Text>IVA ({factura.iva_porcentaje || 21}%):</Text>
-            <Text>{formatCurrency(factura.iva_importe)}</Text>
-          </View>
+          {(factura.iva_porcentaje || 0) > 0 && (
+            <View style={styles.totalRow}>
+              <Text>IVA ({factura.iva_porcentaje}%):</Text>
+              <Text>{formatCurrency(factura.iva_importe)}</Text>
+            </View>
+          )}
           <View style={[styles.totalRow, styles.totalFinal]}>
             <Text style={styles.totalLabel}>TOTAL:</Text>
             <Text style={styles.totalValor}>{formatCurrency(factura.total)}</Text>

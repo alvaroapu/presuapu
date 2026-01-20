@@ -117,7 +117,7 @@ export default function FacturaDetalle() {
             </Button>
           )}
           <PDFDownloadButton
-            document={<FacturaPDF factura={factura} lineas={lineas || []} config={config} />}
+            document={<FacturaPDF factura={factura as any} lineas={lineas || []} config={config} />}
             fileName={`${factura.numero}.pdf`}
           />
         </div>
@@ -243,14 +243,22 @@ export default function FacturaDetalle() {
                 <span>Base Imponible:</span>
                 <span>{formatCurrency(factura.base_imponible)}</span>
               </div>
-              <div className="flex justify-between">
-                <span>IVA ({factura.iva_porcentaje || 21}%):</span>
-                <span>{formatCurrency(factura.iva_importe)}</span>
-              </div>
+              {(factura.iva_porcentaje || 0) > 0 && (
+                <div className="flex justify-between">
+                  <span>IVA ({factura.iva_porcentaje}%):</span>
+                  <span>{formatCurrency(factura.iva_importe)}</span>
+                </div>
+              )}
               <div className="flex justify-between text-lg font-bold border-t pt-2">
                 <span>TOTAL:</span>
                 <span>{formatCurrency(factura.total)}</span>
               </div>
+              {(factura as any).metodo_pago && (
+                <div className="flex justify-between text-sm text-muted-foreground pt-2">
+                  <span>Método de pago:</span>
+                  <span className="capitalize">{(factura as any).metodo_pago === 'transferencia' ? 'Transferencia bancaria' : (factura as any).metodo_pago}</span>
+                </div>
+              )}
             </div>
           </div>
         </CardContent>

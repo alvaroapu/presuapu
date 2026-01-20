@@ -63,6 +63,7 @@ interface PresupuestoFormProps {
   initialIvaPorcentaje?: number;
   initialNotas?: string;
   initialNotasInternas?: string;
+  initialMetodoPago?: string;
 }
 
 export function PresupuestoForm({
@@ -75,7 +76,8 @@ export function PresupuestoForm({
   initialDescuentoValor = 0,
   initialIvaPorcentaje,
   initialNotas = '',
-  initialNotasInternas = ''
+  initialNotasInternas = '',
+  initialMetodoPago = 'transferencia'
 }: PresupuestoFormProps) {
   const navigate = useNavigate();
   const { toast } = useToast();
@@ -93,6 +95,7 @@ export function PresupuestoForm({
   const [ivaPorcentaje, setIvaPorcentaje] = useState(initialIvaPorcentaje ?? config?.iva_porcentaje ?? 21);
   const [notas, setNotas] = useState(initialNotas);
   const [notasInternas, setNotasInternas] = useState(initialNotasInternas);
+  const [metodoPago, setMetodoPago] = useState(initialMetodoPago);
   const [showProductoSelector, setShowProductoSelector] = useState(false);
   const [editingLinea, setEditingLinea] = useState<LineaLocal | null>(null);
   const [saving, setSaving] = useState(false);
@@ -200,7 +203,8 @@ export function PresupuestoForm({
         total,
         estado: asBorrador ? 'borrador' : 'enviado',
         notas,
-        notas_internas: notasInternas
+        notas_internas: notasInternas,
+        metodo_pago: metodoPago
       };
 
       let savedPresupuestoId: string;
@@ -392,16 +396,40 @@ export function PresupuestoForm({
                 <span className="text-muted-foreground">Base Imponible:</span>
                 <span className="font-medium">{formatCurrency(baseImponible)}</span>
               </div>
-              <div className="flex justify-between text-muted-foreground">
-                <span>IVA ({ivaPorcentaje}%):</span>
-                <span>{formatCurrency(ivaImporte)}</span>
-              </div>
+              {ivaPorcentaje > 0 && (
+                <div className="flex justify-between text-muted-foreground">
+                  <span>IVA ({ivaPorcentaje}%):</span>
+                  <span>{formatCurrency(ivaImporte)}</span>
+                </div>
+              )}
               <div className="flex justify-between text-xl font-bold border-t pt-3 mt-2">
                 <span>TOTAL:</span>
                 <span className="text-primary">{formatCurrency(total)}</span>
               </div>
             </div>
           </div>
+        </CardContent>
+      </Card>
+
+      {/* Método de pago */}
+      <Card>
+        <CardHeader>
+          <CardTitle>Método de Pago</CardTitle>
+        </CardHeader>
+        <CardContent>
+          <Select value={metodoPago} onValueChange={setMetodoPago}>
+            <SelectTrigger className="w-full md:w-64">
+              <SelectValue placeholder="Seleccionar método de pago" />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="transferencia">Transferencia bancaria</SelectItem>
+              <SelectItem value="efectivo">Efectivo</SelectItem>
+              <SelectItem value="tarjeta">Tarjeta de crédito/débito</SelectItem>
+              <SelectItem value="bizum">Bizum</SelectItem>
+              <SelectItem value="paypal">PayPal</SelectItem>
+              <SelectItem value="domiciliacion">Domiciliación bancaria</SelectItem>
+            </SelectContent>
+          </Select>
         </CardContent>
       </Card>
 

@@ -282,6 +282,7 @@ export type Database = {
           id: string
           iva_importe: number | null
           iva_porcentaje: number | null
+          metodo_pago: string | null
           notas: string | null
           notas_internas: string | null
           numero: string
@@ -312,6 +313,7 @@ export type Database = {
           id?: string
           iva_importe?: number | null
           iva_porcentaje?: number | null
+          metodo_pago?: string | null
           notas?: string | null
           notas_internas?: string | null
           numero: string
@@ -342,6 +344,7 @@ export type Database = {
           id?: string
           iva_importe?: number | null
           iva_porcentaje?: number | null
+          metodo_pago?: string | null
           notas?: string | null
           notas_internas?: string | null
           numero?: string
@@ -479,6 +482,7 @@ export type Database = {
           id: string
           iva_importe: number | null
           iva_porcentaje: number | null
+          metodo_pago: string | null
           notas: string | null
           notas_internas: string | null
           numero: string
@@ -510,6 +514,7 @@ export type Database = {
           id?: string
           iva_importe?: number | null
           iva_porcentaje?: number | null
+          metodo_pago?: string | null
           notas?: string | null
           notas_internas?: string | null
           numero: string
@@ -541,6 +546,7 @@ export type Database = {
           id?: string
           iva_importe?: number | null
           iva_porcentaje?: number | null
+          metodo_pago?: string | null
           notas?: string | null
           notas_internas?: string | null
           numero?: string
