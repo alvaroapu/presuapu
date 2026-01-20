@@ -264,6 +264,39 @@ export default function FacturaDetalle() {
         </CardContent>
       </Card>
 
+      {/* Condiciones de Pago */}
+      {(config?.condiciones_pago || (factura as any).metodo_pago) && (
+        <Card>
+          <CardHeader>
+            <CardTitle className="text-base">Condiciones de Pago</CardTitle>
+          </CardHeader>
+          <CardContent className="text-sm space-y-2">
+            {(factura as any).metodo_pago && (
+              <p>
+                <span className="font-medium">Forma de pago: </span>
+                {(factura as any).metodo_pago === 'transferencia' ? 'Transferencia bancaria' :
+                 (factura as any).metodo_pago === 'efectivo' ? 'Efectivo' :
+                 (factura as any).metodo_pago === 'tarjeta' ? 'Tarjeta de crédito/débito' :
+                 (factura as any).metodo_pago === 'bizum' ? 'Bizum' :
+                 (factura as any).metodo_pago === 'paypal' ? 'PayPal' :
+                 (factura as any).metodo_pago === 'domiciliacion' ? 'Domiciliación bancaria' :
+                 (factura as any).metodo_pago}
+              </p>
+            )}
+            {config?.condiciones_pago && (
+              <p className="text-muted-foreground whitespace-pre-wrap">{config.condiciones_pago}</p>
+            )}
+            {((factura as any).metodo_pago === 'transferencia' || (factura as any).metodo_pago === 'domiciliacion') && (config?.iban || config?.cuenta_bancaria) && (
+              <div className="mt-2 p-2 bg-muted/50 rounded text-xs">
+                <p className="font-medium mb-1">Datos bancarios:</p>
+                {config?.iban && <p>IBAN: {config.iban}</p>}
+                {config?.cuenta_bancaria && <p>Cuenta: {config.cuenta_bancaria}</p>}
+              </div>
+            )}
+          </CardContent>
+        </Card>
+      )}
+
       {/* Notes */}
       {factura.notas && (
         <Card>
