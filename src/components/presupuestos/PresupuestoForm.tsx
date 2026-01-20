@@ -180,12 +180,17 @@ export function PresupuestoForm({
       const fechaValidez = new Date(fechaEmision);
       fechaValidez.setDate(fechaValidez.getDate() + (config?.validez_dias || 30));
 
+      // Format document with type prefix if available
+      const clienteDocumento = cliente.numero_documento 
+        ? (cliente.tipo_documento ? `${cliente.tipo_documento}: ${cliente.numero_documento}` : cliente.numero_documento)
+        : null;
+
       const presupuestoData = {
         numero,
         cliente_id: cliente.id,
         cliente_nombre: cliente.nombre,
         cliente_nombre_comercial: cliente.nombre_comercial,
-        cliente_documento: cliente.numero_documento,
+        cliente_documento: clienteDocumento,
         cliente_email: cliente.email,
         cliente_telefono: cliente.telefono,
         cliente_direccion: cliente.direccion,
