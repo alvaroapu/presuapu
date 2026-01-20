@@ -10,6 +10,7 @@ import { useState } from "react";
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuSeparator, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
 import { useToast } from "@/hooks/use-toast";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { ExportFacturas } from "@/components/facturas/ExportFacturas";
 
 export default function Facturas() {
   const currentYear = new Date().getFullYear();
@@ -56,6 +57,7 @@ export default function Facturas() {
     <div className="space-y-6">
       <div className="flex items-center justify-between">
         <h1 className="text-3xl font-bold">Facturas</h1>
+        <ExportFacturas />
       </div>
 
       <div className="flex flex-wrap gap-4">
