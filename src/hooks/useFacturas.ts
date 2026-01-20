@@ -66,7 +66,7 @@ export function useFacturas(filtros?: FiltrosFactura) {
       let query = supabase
         .from('v_facturas_completas')
         .select('*')
-        .order('fecha_emision', { ascending: false });
+        .order('created_at', { ascending: false });
       
       if (filtros?.estado) {
         query = query.eq('estado', filtros.estado);
