@@ -572,6 +572,51 @@ export type Database = {
           },
         ]
       }
+      producto_tarifas: {
+        Row: {
+          cantidad_desde: number
+          cantidad_hasta: number | null
+          created_at: string | null
+          id: string
+          orden: number
+          precio_unitario: number
+          producto_id: string
+        }
+        Insert: {
+          cantidad_desde?: number
+          cantidad_hasta?: number | null
+          created_at?: string | null
+          id?: string
+          orden?: number
+          precio_unitario: number
+          producto_id: string
+        }
+        Update: {
+          cantidad_desde?: number
+          cantidad_hasta?: number | null
+          created_at?: string | null
+          id?: string
+          orden?: number
+          precio_unitario?: number
+          producto_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "producto_tarifas_producto_id_fkey"
+            columns: ["producto_id"]
+            isOneToOne: false
+            referencedRelation: "productos"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "producto_tarifas_producto_id_fkey"
+            columns: ["producto_id"]
+            isOneToOne: false
+            referencedRelation: "v_productos_con_categoria"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       productos: {
         Row: {
           activo: boolean | null
