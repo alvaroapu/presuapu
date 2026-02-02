@@ -1,4 +1,4 @@
-import { useParams, useNavigate, Link } from "react-router-dom";
+import { useParams, useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -6,20 +6,19 @@ import { Textarea } from "@/components/ui/textarea";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { ArrowLeft, Copy } from "lucide-react";
 import { useCategorias } from "@/hooks/useCategorias";
-import { useProducto, useUpdateProducto } from "@/hooks/useProductos";
+import { useProducto, useCreateProducto } from "@/hooks/useProductos";
 import { useToast } from "@/hooks/use-toast";
 import { useState, useEffect } from "react";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Skeleton } from "@/components/ui/skeleton";
-import { Switch } from "@/components/ui/switch";
 
-export default function ProductoEditar() {
+export default function ProductoDuplicar() {
   const { id } = useParams();
   const navigate = useNavigate();
   const { toast } = useToast();
   const { data: categorias } = useCategorias();
   const { data: producto, isLoading } = useProducto(id);
-  const updateProducto = useUpdateProducto();
+  const createProducto = useCreateProducto();
 
   const [form, setForm] = useState({
     categoria_id: '',
@@ -37,16 +36,15 @@ export default function ProductoEditar() {
     precio_por_unidad: 0,
     precio_por_hora: 0,
     precio_placa_a3: 0,
-    precio_placa_a4: 0,
-    activo: true
+    precio_placa_a4: 0
   });
 
   useEffect(() => {
     if (producto) {
       setForm({
         categoria_id: producto.categoria_id,
-        nombre: producto.nombre,
-        codigo: producto.codigo || '',
+        nombre: `${producto.nombre} (copia)`,
+        codigo: producto.codigo ? `${producto.codigo}-copia` : '',
         descripcion: producto.descripcion || '',
         tipo_calculo: producto.tipo_calculo,
         precio_material: producto.precio_material || 0,
@@ -59,22 +57,24 @@ export default function ProductoEditar() {
         precio_por_unidad: producto.precio_por_unidad || 0,
         precio_por_hora: producto.precio_por_hora || 0,
         precio_placa_a3: producto.precio_placa_a3 || 0,
-        precio_placa_a4: producto.precio_placa_a4 || 0,
-        activo: producto.activo ?? true
+        precio_placa_a4: producto.precio_placa_a4 || 0
       });
     }
   }, [producto]);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!id) return;
+    if (!form.categoria_id || !form.nombre) {
+      toast({ title: "Completa los campos obligatorios", variant: "destructive" });
+      return;
+    }
 
     try {
-      await updateProducto.mutateAsync({ id, ...form });
-      toast({ title: "Producto actualizado" });
+      await createProducto.mutateAsync(form);
+      toast({ title: "Producto duplicado" });
       navigate('/catalogo');
     } catch {
-      toast({ title: "Error al actualizar producto", variant: "destructive" });
+      toast({ title: "Error al duplicar producto", variant: "destructive" });
     }
   };
 
@@ -94,18 +94,15 @@ export default function ProductoEditar() {
           <Button type="button" variant="ghost" size="icon" onClick={() => navigate(-1)}>
             <ArrowLeft className="w-4 h-4" />
           </Button>
-          <h1 className="text-2xl font-bold">Editar Producto</h1>
+          <div className="flex items-center gap-2">
+            <Copy className="w-5 h-5 text-muted-foreground" />
+            <h1 className="text-2xl font-bold">Duplicar Producto</h1>
+          </div>
         </div>
         <div className="flex gap-2">
-          <Button type="button" variant="outline" asChild>
-            <Link to={`/catalogo/productos/${id}/duplicar`}>
-              <Copy className="w-4 h-4 mr-2" />
-              Duplicar
-            </Link>
-          </Button>
           <Button type="button" variant="outline" onClick={() => navigate(-1)}>Cancelar</Button>
-          <Button type="submit" disabled={updateProducto.isPending}>
-            {updateProducto.isPending ? 'Guardando...' : 'Guardar'}
+          <Button type="submit" disabled={createProducto.isPending}>
+            {createProducto.isPending ? 'Guardando...' : 'Crear copia'}
           </Button>
         </div>
       </div>
@@ -153,10 +150,6 @@ export default function ProductoEditar() {
           <div className="space-y-2 md:col-span-2">
             <Label>Descripción</Label>
             <Textarea value={form.descripcion} onChange={e => setForm({...form, descripcion: e.target.value})} />
-          </div>
-          <div className="flex items-center gap-2">
-            <Switch checked={form.activo} onCheckedChange={v => setForm({...form, activo: v})} />
-            <Label>Producto activo</Label>
           </div>
         </CardContent>
       </Card>

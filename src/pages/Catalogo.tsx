@@ -11,6 +11,7 @@ import { Badge } from "@/components/ui/badge";
 import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip";
 import { PriceCalculator } from "@/components/catalogo/PriceCalculator";
 import { ImportExportProducts } from "@/components/catalogo/ImportExportProducts";
+import { CreateCategoriaDialog } from "@/components/catalogo/CreateCategoriaDialog";
 import { Checkbox } from "@/components/ui/checkbox";
 import {
   AlertDialog,
@@ -169,6 +170,7 @@ export default function Catalogo() {
                 Eliminar productos
               </Button>
               <ImportExportProducts productos={productos} />
+              <CreateCategoriaDialog />
               <Button asChild>
                 <Link to="/catalogo/productos/nuevo">
                   <Plus className="w-4 h-4 mr-2" />
