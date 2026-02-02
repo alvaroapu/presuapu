@@ -36,8 +36,8 @@ export function ProductCard({
   if (selectionMode) {
     return (
       <div
-        onClick={onToggleSelection}
-        className={`p-3 cursor-pointer transition-colors ${isSelected ? 'bg-primary/10' : 'hover:bg-muted/30'}`}
+      onClick={onToggleSelection}
+      className={`p-3 cursor-pointer transition-colors ${isSelected ? 'bg-primary/10' : 'hover:bg-muted'}`}
       >
         <div className="flex items-start gap-3">
           <Checkbox 
@@ -77,7 +77,7 @@ export function ProductCard({
   return (
     <Link
       to={`/catalogo/productos/${p.id}`}
-      className="block p-3 hover:bg-muted/30 transition-colors"
+      className="block p-3 hover:bg-muted transition-colors"
     >
       <div className="flex items-start justify-between gap-3">
         <div className="flex-1 min-w-0">
