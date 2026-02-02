@@ -23,6 +23,7 @@ import ClienteEditar from "@/pages/ClienteEditar";
 import Catalogo from "@/pages/Catalogo";
 import ProductoNuevo from "@/pages/ProductoNuevo";
 import ProductoEditar from "@/pages/ProductoEditar";
+import ProductoDuplicar from "@/pages/ProductoDuplicar";
 import Configuracion from "@/pages/Configuracion";
 import Auth from "@/pages/Auth";
 import NotFound from "@/pages/NotFound";
@@ -56,6 +57,7 @@ const App = () => (
             <Route path="catalogo" element={<Catalogo />} />
             <Route path="catalogo/productos/nuevo" element={<ProductoNuevo />} />
             <Route path="catalogo/productos/:id" element={<ProductoEditar />} />
+            <Route path="catalogo/productos/:id/duplicar" element={<ProductoDuplicar />} />
             <Route path="configuracion" element={<Configuracion />} />
           </Route>
           <Route path="*" element={<NotFound />} />
