@@ -75,3 +75,30 @@ export function useSaveProductoTarifas() {
     }
   });
 }
+
+// Hook para obtener todas las tarifas de todos los productos (útil para listados)
+export function useAllProductoTarifas() {
+  return useQuery({
+    queryKey: ['all-producto-tarifas'],
+    queryFn: async () => {
+      const { data, error } = await supabase
+        .from('producto_tarifas')
+        .select('*')
+        .order('producto_id')
+        .order('orden');
+      
+      if (error) throw error;
+      
+      // Agrupar por producto_id para acceso rápido
+      const tarifasPorProducto: Record<string, ProductoTarifa[]> = {};
+      for (const tarifa of data as ProductoTarifa[]) {
+        if (!tarifasPorProducto[tarifa.producto_id]) {
+          tarifasPorProducto[tarifa.producto_id] = [];
+        }
+        tarifasPorProducto[tarifa.producto_id].push(tarifa);
+      }
+      
+      return tarifasPorProducto;
+    }
+  });
+}

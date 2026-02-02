@@ -8,12 +8,12 @@ import { Badge } from "@/components/ui/badge";
 import { Switch } from "@/components/ui/switch";
 import { useProductos, useCalcularPrecio } from "@/hooks/useProductos";
 import { useCategorias } from "@/hooks/useCategorias";
+import { useAllProductoTarifas } from "@/hooks/useProductoTarifas";
 import { formatCurrency, formatNumber } from "@/lib/formatters";
 import { Search, Wand2 } from "lucide-react";
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import { cn } from "@/lib/utils";
 import { ProductoPersonalizadoDialog } from "./ProductoPersonalizadoDialog";
-
 interface LineaLocal {
   id: string;
   producto_id: string | null;
@@ -35,7 +35,7 @@ interface ProductoSelectorProps {
 export function ProductoSelector({ open, onClose, onAdd }: ProductoSelectorProps) {
   const { data: productos } = useProductos();
   const { data: categorias } = useCategorias();
-  
+  const { data: tarifasPorProducto } = useAllProductoTarifas();
   const [search, setSearch] = useState("");
   const [categoriaId, setCategoriaId] = useState<string | null>(null);
   const [productoId, setProductoId] = useState<string | null>(null);
@@ -190,26 +190,60 @@ export function ProductoSelector({ open, onClose, onAdd }: ProductoSelectorProps
           {/* Product List */}
           {!productoId && (
             <div className="border rounded-lg max-h-96 overflow-auto">
-              {productosFiltrados?.map(p => (
-                <button
-                  key={p.id}
-                  className={cn(
-                    "w-full text-left p-3 hover:bg-muted border-b last:border-0 transition-colors",
-                    productoId === p.id && "bg-muted"
-                  )}
-                  onClick={() => setProductoId(p.id)}
-                >
-                  <div className="flex items-center justify-between">
-                    <span className="font-medium">{p.nombre}</span>
-                    <Badge variant="secondary" className="text-xs">{p.categoria_nombre}</Badge>
-                  </div>
-                  <p className="text-sm text-muted-foreground">
-                    {p.tipo_calculo === 'por_metro' && `${formatCurrency(p.precio_metro_tarifa_1 || 0)}/m²`}
-                    {p.tipo_calculo === 'por_hora' && `${formatCurrency(p.precio_por_hora || 0)}/h`}
-                    {p.tipo_calculo === 'por_unidad' && `${formatCurrency(p.precio_por_unidad || 0)}/ud`}
-                  </p>
-                </button>
-              ))}
+              {productosFiltrados?.map(p => {
+                // Obtener precio base: primero de tarifas por rangos, luego del modelo legacy
+                const tarifasProducto = tarifasPorProducto?.[p.id];
+                const primeraTarifa = tarifasProducto?.[0];
+                
+                const getPrecioBase = () => {
+                  if (primeraTarifa) {
+                    return formatCurrency(primeraTarifa.precio_unitario);
+                  }
+                  // Fallback al modelo legacy
+                  if (p.tipo_calculo === 'por_metro') {
+                    return formatCurrency(p.precio_metro_tarifa_1 || 0);
+                  }
+                  if (p.tipo_calculo === 'por_hora') {
+                    return formatCurrency(p.precio_por_hora || 0);
+                  }
+                  if (p.tipo_calculo === 'por_unidad') {
+                    return formatCurrency(p.precio_por_unidad || 0);
+                  }
+                  return null;
+                };
+
+                const getUnidad = () => {
+                  if (p.tipo_calculo === 'por_metro') return '/m²';
+                  if (p.tipo_calculo === 'por_hora') return '/h';
+                  if (p.tipo_calculo === 'por_unidad') return '/ud';
+                  return '';
+                };
+
+                const precioBase = getPrecioBase();
+                const unidad = getUnidad();
+                const tieneTarifasVariables = !!primeraTarifa;
+
+                return (
+                  <button
+                    key={p.id}
+                    className={cn(
+                      "w-full text-left p-3 hover:bg-muted border-b last:border-0 transition-colors",
+                      productoId === p.id && "bg-muted"
+                    )}
+                    onClick={() => setProductoId(p.id)}
+                  >
+                    <div className="flex items-center justify-between">
+                      <span className="font-medium">{p.nombre}</span>
+                      <Badge variant="secondary" className="text-xs">{p.categoria_nombre}</Badge>
+                    </div>
+                    {precioBase && (
+                      <p className="text-sm text-muted-foreground">
+                        {tieneTarifasVariables ? `Desde ${precioBase}${unidad}` : `${precioBase}${unidad}`}
+                      </p>
+                    )}
+                  </button>
+                );
+              })}
             </div>
           )}
 
