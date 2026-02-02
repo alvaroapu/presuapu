@@ -184,7 +184,7 @@ export default function Catalogo() {
             onOpenChange={() => toggleCategory(cat.id)}
           >
             <CollapsibleTrigger asChild>
-              <Button variant="ghost" className="w-full justify-between p-3 md:p-4 h-auto border rounded-lg hover:bg-muted/50">
+              <button className="w-full flex items-center justify-between p-3 md:p-4 border rounded-lg bg-background hover:bg-muted transition-colors text-left">
                 <div className="flex items-center gap-2 md:gap-3">
                   {selectionMode && cat.productos.length > 0 && (
                     <Checkbox 
@@ -202,7 +202,7 @@ export default function Catalogo() {
                   )}
                   <ChevronDown className={`w-5 h-5 transition-transform duration-200 ${openCategories.includes(cat.id) ? 'rotate-180' : ''}`} />
                 </div>
-              </Button>
+              </button>
             </CollapsibleTrigger>
             <CollapsibleContent>
               <div className="border border-t-0 rounded-b-lg overflow-hidden divide-y">
