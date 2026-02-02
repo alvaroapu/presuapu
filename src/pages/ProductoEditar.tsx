@@ -42,7 +42,8 @@ export default function ProductoEditar() {
     precio_por_hora: 0,
     precio_placa_a3: 0,
     precio_placa_a4: 0,
-    activo: true
+    activo: true,
+    metros_gratis: 0
   });
 
   const [tarifas, setTarifas] = useState<Tarifa[]>([]);
@@ -67,7 +68,8 @@ export default function ProductoEditar() {
         precio_por_hora: producto.precio_por_hora || 0,
         precio_placa_a3: producto.precio_placa_a3 || 0,
         precio_placa_a4: producto.precio_placa_a4 || 0,
-        activo: producto.activo ?? true
+        activo: producto.activo ?? true,
+        metros_gratis: (producto as any).metros_gratis || 0
       });
     }
   }, [producto]);
@@ -239,6 +241,11 @@ export default function ProductoEditar() {
                 <div className="space-y-2">
                   <Label>Precio fijo (arranque)</Label>
                   <Input type="number" step="0.01" value={form.precio_base_fijo} onChange={e => setForm({...form, precio_base_fijo: Number(e.target.value)})} />
+                </div>
+                <div className="space-y-2">
+                  <Label>Metros gratis (bonificación)</Label>
+                  <Input type="number" step="0.1" min="0" value={form.metros_gratis} onChange={e => setForm({...form, metros_gratis: Number(e.target.value)})} />
+                  <p className="text-xs text-muted-foreground">Metros de regalo que no se facturan</p>
                 </div>
                 <div className="space-y-2">
                   <Label>Límite Tarifa 1 (m²)</Label>

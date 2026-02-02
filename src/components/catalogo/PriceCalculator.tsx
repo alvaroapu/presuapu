@@ -108,6 +108,12 @@ export function PriceCalculator({ producto, onClose }: PriceCalculatorProps) {
               <span>{formatCurrency(precio.desglose.precio_fijo)}</span>
             </div>
           )}
+          {precio.desglose.metros_gratis !== undefined && precio.desglose.metros_gratis > 0 && (
+            <div className="flex justify-between text-sm italic text-primary">
+              <span>🎁 Regalo: {formatNumber(precio.desglose.metros_gratis)} {getUnitLabel()} gratis</span>
+              <span className="text-muted-foreground">-{formatCurrency(0)}</span>
+            </div>
+          )}
           {precio.desglose.importe_metro_2 !== undefined && precio.desglose.importe_metro_2 > 0 && (
             <div className="flex justify-between text-sm">
               <span className="text-muted-foreground">2º metro:</span>
@@ -128,6 +134,18 @@ export function PriceCalculator({ producto, onClose }: PriceCalculatorProps) {
                 {formatNumber(precio.desglose.metros_tarifa_2)} m² × {formatCurrency(precio.desglose.precio_metro_tarifa_2 || 0)}:
               </span>
               <span>{formatCurrency(precio.desglose.importe_tarifa_2 || 0)}</span>
+            </div>
+          )}
+          {precio.desglose.rangos && precio.desglose.rangos.length > 0 && (
+            <div className="space-y-1">
+              {precio.desglose.rangos.map((rango, i) => (
+                <div key={i} className="flex justify-between text-sm">
+                  <span className="text-muted-foreground">
+                    {formatNumber(rango.cantidad)} {getUnitLabel()} × {formatCurrency(rango.precio_unitario)}:
+                  </span>
+                  <span>{formatCurrency(rango.importe)}</span>
+                </div>
+              ))}
             </div>
           )}
           <div className="flex justify-between font-semibold text-lg border-t pt-2">
