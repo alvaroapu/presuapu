@@ -149,6 +149,11 @@ export function ProductCard({
                 <span className="text-primary font-medium">{formatCurrency(p.precio_montaje)}</span>
               </div>
             )}
+            {(p as any).metros_gratis > 0 && (
+              <div className="italic text-primary">
+                <span className="text-xs">🎁 {(p as any).metros_gratis} m² gratis</span>
+              </div>
+            )}
             {!tieneTarifasVariables && p.tipo_calculo === 'por_metro' && p.precio_metro_tarifa_2 && (
               <div>
                 <span className="text-muted-foreground text-xs">Tarifa 2: </span>

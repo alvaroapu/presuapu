@@ -148,6 +148,7 @@ export interface PrecioCalculado {
   importe_total: number;
   desglose: {
     precio_fijo?: number;
+    precio_base?: number;
     importe_metro_2?: number;
     metros_tarifa_1?: number;
     precio_metro_tarifa_1?: number;
@@ -162,6 +163,16 @@ export interface PrecioCalculado {
     tipo_placa?: string;
     precio_placa?: number;
     cantidad?: number;
+    metros_gratis?: number;
+    cantidad_facturable?: number;
+    rangos?: Array<{
+      desde: number;
+      hasta: number | null;
+      cantidad: number;
+      precio_unitario: number;
+      importe: number;
+    }>;
+    tipo?: string;
   };
 }
 

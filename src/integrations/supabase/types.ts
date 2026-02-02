@@ -625,6 +625,7 @@ export type Database = {
           created_at: string | null
           descripcion: string | null
           id: string
+          metros_gratis: number | null
           metros_limite_tarifa_1: number | null
           nombre: string
           precio_base_fijo: number | null
@@ -648,6 +649,7 @@ export type Database = {
           created_at?: string | null
           descripcion?: string | null
           id?: string
+          metros_gratis?: number | null
           metros_limite_tarifa_1?: number | null
           nombre: string
           precio_base_fijo?: number | null
@@ -671,6 +673,7 @@ export type Database = {
           created_at?: string | null
           descripcion?: string | null
           id?: string
+          metros_gratis?: number | null
           metros_limite_tarifa_1?: number | null
           nombre?: string
           precio_base_fijo?: number | null

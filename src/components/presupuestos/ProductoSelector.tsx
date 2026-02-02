@@ -353,6 +353,12 @@ export function ProductoSelector({ open, onClose, onAdd }: ProductoSelectorProps
                           <span>{formatCurrency(precio.desglose.precio_fijo)}</span>
                         </div>
                       )}
+                      {precio.desglose.metros_gratis !== undefined && precio.desglose.metros_gratis > 0 && (
+                        <div className="flex justify-between text-sm italic text-primary">
+                          <span>🎁 Regalo: {formatNumber(precio.desglose.metros_gratis)} m² gratis</span>
+                          <span className="text-muted-foreground">-{formatCurrency(0)}</span>
+                        </div>
+                      )}
                       {precio.desglose.metros_tarifa_1 !== undefined && (
                         <div className="flex justify-between text-sm">
                           <span>{formatNumber(precio.desglose.metros_tarifa_1)} m² × {formatCurrency(precio.desglose.precio_metro_tarifa_1 || 0)}/m²:</span>
