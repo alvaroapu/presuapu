@@ -163,11 +163,33 @@ export default function ProductoNuevo() {
       </Card>
 
       {usarTarifasVariables ? (
-        <TarifasEditor 
-          tarifas={tarifas} 
-          onChange={setTarifas}
-          unidad={getUnidad()}
-        />
+        <>
+          <Card>
+            <CardHeader>
+              <CardTitle>Bonificación</CardTitle>
+            </CardHeader>
+            <CardContent>
+              <div className="space-y-2 max-w-xs">
+                <Label>{getUnidad() === 'm²' ? 'Metros' : getUnidad() === 'h' ? 'Horas' : 'Unidades'} gratis (regalo)</Label>
+                <Input 
+                  type="number" 
+                  step="0.1" 
+                  min="0" 
+                  value={form.metros_gratis} 
+                  onChange={e => setForm({...form, metros_gratis: Number(e.target.value)})} 
+                />
+                <p className="text-xs text-muted-foreground">
+                  Cantidad de regalo que no se factura (ej: bono promocional)
+                </p>
+              </div>
+            </CardContent>
+          </Card>
+          <TarifasEditor 
+            tarifas={tarifas} 
+            onChange={setTarifas}
+            unidad={getUnidad()}
+          />
+        </>
       ) : (
         <>
           {form.tipo_calculo === 'por_metro' && (
