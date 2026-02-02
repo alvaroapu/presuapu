@@ -2,6 +2,7 @@ import { Link } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
+import { Card, CardContent } from "@/components/ui/card";
 import { Search, MoreHorizontal, Eye, Edit, FileDown, Trash2 } from "lucide-react";
 import { useFacturas, useUpdateFactura, useDeleteFactura } from "@/hooks/useFacturas";
 import { formatCurrency, formatDate, getEstadoFacturaColor, getEstadoFacturaLabel } from "@/lib/formatters";
@@ -98,135 +99,209 @@ export default function Facturas() {
         </AlertDialogContent>
       </AlertDialog>
 
-      <div className="space-y-6">
-        <div className="flex items-center justify-between">
-          <h1 className="text-3xl font-bold">Facturas</h1>
+      <div className="space-y-4 md:space-y-6">
+        <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+          <h1 className="text-2xl md:text-3xl font-bold">Facturas</h1>
           <ExportFacturas />
         </div>
 
-        <div className="flex flex-wrap gap-4">
-          <div className="relative flex-1 min-w-[200px] max-w-md">
+        {/* Filters */}
+        <div className="flex flex-col gap-3 sm:flex-row sm:flex-wrap sm:gap-4">
+          <div className="relative flex-1 min-w-0 sm:min-w-[200px] sm:max-w-md">
             <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
             <Input
-              placeholder="Buscar por número o cliente..."
+              placeholder="Buscar..."
               className="pl-10"
               value={busqueda}
               onChange={(e) => setBusqueda(e.target.value)}
             />
           </div>
-        <Select value={añoFiltro.toString()} onValueChange={(v) => setAñoFiltro(parseInt(v))}>
-          <SelectTrigger className="w-28">
-            <SelectValue placeholder="Año" />
-          </SelectTrigger>
-          <SelectContent>
-            {años.map((año) => (
-              <SelectItem key={año} value={año.toString()}>{año}</SelectItem>
-            ))}
-          </SelectContent>
-        </Select>
-        <Select value={mesFiltro} onValueChange={setMesFiltro}>
-          <SelectTrigger className="w-36">
-            <SelectValue placeholder="Mes" />
-          </SelectTrigger>
-          <SelectContent>
-            <SelectItem value="todos">Todos los meses</SelectItem>
-            {meses.map((mes) => (
-              <SelectItem key={mes.value} value={mes.value}>{mes.label}</SelectItem>
-            ))}
-          </SelectContent>
-        </Select>
-        <Select value={estadoFiltro} onValueChange={setEstadoFiltro}>
-          <SelectTrigger className="w-40">
-            <SelectValue placeholder="Estado" />
-          </SelectTrigger>
-          <SelectContent>
-            <SelectItem value="todos">Todos</SelectItem>
-            <SelectItem value="emitida">Emitida</SelectItem>
-            <SelectItem value="pagada">Pagada</SelectItem>
-            <SelectItem value="vencida">Vencida</SelectItem>
-            <SelectItem value="anulada">Anulada</SelectItem>
-          </SelectContent>
-        </Select>
-      </div>
-
-      <div className="border rounded-lg overflow-x-auto">
-        <div className="grid grid-cols-[120px_1fr_100px_100px_100px_48px] gap-4 p-4 border-b bg-muted/50 font-medium text-sm min-w-[650px]">
-          <div>Nº Factura</div>
-          <div>Cliente</div>
-          <div className="text-right">Total</div>
-          <div className="text-center">Estado</div>
-          <div>Fecha</div>
-          <div></div>
+          <div className="flex gap-2 flex-wrap">
+            <Select value={añoFiltro.toString()} onValueChange={(v) => setAñoFiltro(parseInt(v))}>
+              <SelectTrigger className="w-24">
+                <SelectValue placeholder="Año" />
+              </SelectTrigger>
+              <SelectContent>
+                {años.map((año) => (
+                  <SelectItem key={año} value={año.toString()}>{año}</SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+            <Select value={mesFiltro} onValueChange={setMesFiltro}>
+              <SelectTrigger className="w-28 sm:w-36">
+                <SelectValue placeholder="Mes" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="todos">Todos</SelectItem>
+                {meses.map((mes) => (
+                  <SelectItem key={mes.value} value={mes.value}>{mes.label}</SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+            <Select value={estadoFiltro} onValueChange={setEstadoFiltro}>
+              <SelectTrigger className="w-28 sm:w-40">
+                <SelectValue placeholder="Estado" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="todos">Todos</SelectItem>
+                <SelectItem value="emitida">Emitida</SelectItem>
+                <SelectItem value="pagada">Pagada</SelectItem>
+                <SelectItem value="vencida">Vencida</SelectItem>
+                <SelectItem value="anulada">Anulada</SelectItem>
+              </SelectContent>
+            </Select>
+          </div>
         </div>
-        
-        {isLoading ? (
-          <div className="p-4 space-y-4">
-            {[1,2,3,4,5].map(i => <Skeleton key={i} className="h-12 w-full" />)}
+
+        {/* Desktop Table */}
+        <div className="border rounded-lg overflow-x-auto hidden md:block">
+          <div className="grid grid-cols-[120px_1fr_100px_100px_100px_48px] gap-4 p-4 border-b bg-muted/50 font-medium text-sm min-w-[650px]">
+            <div>Nº Factura</div>
+            <div>Cliente</div>
+            <div className="text-right">Total</div>
+            <div className="text-center">Estado</div>
+            <div>Fecha</div>
+            <div></div>
           </div>
-        ) : facturas?.length === 0 ? (
-          <div className="p-8 text-center text-muted-foreground">
-            No hay facturas
-          </div>
-        ) : (
-          facturas?.map((f) => (
-            <div key={f.id} className="grid grid-cols-[120px_1fr_100px_100px_100px_48px] gap-4 p-4 border-b last:border-0 items-center hover:bg-muted/30 min-w-[650px]">
-              <div className="font-mono text-sm">{f.numero}</div>
-              <div className="font-medium truncate">{f.cliente_nombre}</div>
-              <div className="text-right font-medium">{formatCurrency(f.total || 0)}</div>
-              <div className="text-center">
-                <Badge variant="outline" className={getEstadoFacturaColor(f.estado || '')}>
-                  {getEstadoFacturaLabel(f.estado || '')}
-                </Badge>
-              </div>
-              <div className="text-sm text-muted-foreground">{formatDate(f.fecha_emision)}</div>
-              <div>
-                <DropdownMenu>
-                  <DropdownMenuTrigger asChild>
-                    <Button variant="ghost" size="icon">
-                      <MoreHorizontal className="w-4 h-4" />
-                    </Button>
-                  </DropdownMenuTrigger>
-                  <DropdownMenuContent align="end">
-                    <DropdownMenuItem asChild>
-                      <Link to={`/facturas/${f.id}`}>
-                        <Eye className="w-4 h-4 mr-2" /> Ver
-                      </Link>
-                    </DropdownMenuItem>
-                    {f.estado !== 'pagada' && f.estado !== 'anulada' && (
+          
+          {isLoading ? (
+            <div className="p-4 space-y-4">
+              {[1,2,3,4,5].map(i => <Skeleton key={i} className="h-12 w-full" />)}
+            </div>
+          ) : facturas?.length === 0 ? (
+            <div className="p-8 text-center text-muted-foreground">
+              No hay facturas
+            </div>
+          ) : (
+            facturas?.map((f) => (
+              <div key={f.id} className="grid grid-cols-[120px_1fr_100px_100px_100px_48px] gap-4 p-4 border-b last:border-0 items-center hover:bg-muted/30 min-w-[650px]">
+                <div className="font-mono text-sm">{f.numero}</div>
+                <div className="font-medium truncate">{f.cliente_nombre}</div>
+                <div className="text-right font-medium">{formatCurrency(f.total || 0)}</div>
+                <div className="text-center">
+                  <Badge variant="outline" className={getEstadoFacturaColor(f.estado || '')}>
+                    {getEstadoFacturaLabel(f.estado || '')}
+                  </Badge>
+                </div>
+                <div className="text-sm text-muted-foreground">{formatDate(f.fecha_emision)}</div>
+                <div>
+                  <DropdownMenu>
+                    <DropdownMenuTrigger asChild>
+                      <Button variant="ghost" size="icon">
+                        <MoreHorizontal className="w-4 h-4" />
+                      </Button>
+                    </DropdownMenuTrigger>
+                    <DropdownMenuContent align="end">
                       <DropdownMenuItem asChild>
-                        <Link to={`/facturas/${f.id}/editar`}>
-                          <Edit className="w-4 h-4 mr-2" /> Editar
+                        <Link to={`/facturas/${f.id}`}>
+                          <Eye className="w-4 h-4 mr-2" /> Ver
                         </Link>
                       </DropdownMenuItem>
-                    )}
-                    <DropdownMenuItem asChild>
-                      <Link to={`/facturas/${f.id}`}>
-                        <FileDown className="w-4 h-4 mr-2" /> PDF
-                      </Link>
-                    </DropdownMenuItem>
-                    <DropdownMenuSeparator />
-                    <DropdownMenuItem onClick={() => cambiarEstado(f.id!, 'pagada')}>
-                      Marcar como Pagada
-                    </DropdownMenuItem>
-                    <DropdownMenuItem onClick={() => cambiarEstado(f.id!, 'vencida')}>
-                      Marcar como Vencida
-                    </DropdownMenuItem>
-                    <DropdownMenuItem onClick={() => cambiarEstado(f.id!, 'anulada')}>
-                      Marcar como Anulada
-                    </DropdownMenuItem>
-                    <DropdownMenuSeparator />
-                    <DropdownMenuItem 
-                      onClick={() => setDeleteId(f.id!)}
-                      className="text-destructive focus:text-destructive"
-                    >
-                      <Trash2 className="w-4 h-4 mr-2" /> Eliminar
-                    </DropdownMenuItem>
-                  </DropdownMenuContent>
-                </DropdownMenu>
+                      {f.estado !== 'pagada' && f.estado !== 'anulada' && (
+                        <DropdownMenuItem asChild>
+                          <Link to={`/facturas/${f.id}/editar`}>
+                            <Edit className="w-4 h-4 mr-2" /> Editar
+                          </Link>
+                        </DropdownMenuItem>
+                      )}
+                      <DropdownMenuItem asChild>
+                        <Link to={`/facturas/${f.id}`}>
+                          <FileDown className="w-4 h-4 mr-2" /> PDF
+                        </Link>
+                      </DropdownMenuItem>
+                      <DropdownMenuSeparator />
+                      <DropdownMenuItem onClick={() => cambiarEstado(f.id!, 'pagada')}>
+                        Marcar como Pagada
+                      </DropdownMenuItem>
+                      <DropdownMenuItem onClick={() => cambiarEstado(f.id!, 'vencida')}>
+                        Marcar como Vencida
+                      </DropdownMenuItem>
+                      <DropdownMenuItem onClick={() => cambiarEstado(f.id!, 'anulada')}>
+                        Marcar como Anulada
+                      </DropdownMenuItem>
+                      <DropdownMenuSeparator />
+                      <DropdownMenuItem 
+                        onClick={() => setDeleteId(f.id!)}
+                        className="text-destructive focus:text-destructive"
+                      >
+                        <Trash2 className="w-4 h-4 mr-2" /> Eliminar
+                      </DropdownMenuItem>
+                    </DropdownMenuContent>
+                  </DropdownMenu>
+                </div>
               </div>
+            ))
+          )}
+        </div>
+
+        {/* Mobile Cards */}
+        <div className="space-y-3 md:hidden">
+          {isLoading ? (
+            <div className="space-y-3">
+              {[1,2,3].map(i => <Skeleton key={i} className="h-24 w-full" />)}
             </div>
-          ))
-        )}
+          ) : facturas?.length === 0 ? (
+            <div className="p-8 text-center text-muted-foreground border rounded-lg">
+              No hay facturas
+            </div>
+          ) : (
+            facturas?.map((f) => (
+              <Card key={f.id} className="overflow-hidden">
+                <CardContent className="p-3">
+                  <div className="flex items-start justify-between gap-2">
+                    <Link to={`/facturas/${f.id}`} className="flex-1 min-w-0">
+                      <div className="flex items-center gap-2 mb-1">
+                        <span className="font-mono text-xs">{f.numero}</span>
+                        <Badge variant="outline" className={`text-xs ${getEstadoFacturaColor(f.estado || '')}`}>
+                          {getEstadoFacturaLabel(f.estado || '')}
+                        </Badge>
+                      </div>
+                      <p className="font-medium truncate">{f.cliente_nombre}</p>
+                      <div className="flex items-center gap-3 mt-1 text-sm">
+                        <span className="font-semibold">{formatCurrency(f.total || 0)}</span>
+                        <span className="text-muted-foreground text-xs">{formatDate(f.fecha_emision)}</span>
+                      </div>
+                    </Link>
+                    <DropdownMenu>
+                      <DropdownMenuTrigger asChild>
+                        <Button variant="ghost" size="icon" className="shrink-0">
+                          <MoreHorizontal className="w-4 h-4" />
+                        </Button>
+                      </DropdownMenuTrigger>
+                      <DropdownMenuContent align="end">
+                        <DropdownMenuItem asChild>
+                          <Link to={`/facturas/${f.id}`}>
+                            <Eye className="w-4 h-4 mr-2" /> Ver
+                          </Link>
+                        </DropdownMenuItem>
+                        {f.estado !== 'pagada' && f.estado !== 'anulada' && (
+                          <DropdownMenuItem asChild>
+                            <Link to={`/facturas/${f.id}/editar`}>
+                              <Edit className="w-4 h-4 mr-2" /> Editar
+                            </Link>
+                          </DropdownMenuItem>
+                        )}
+                        <DropdownMenuSeparator />
+                        <DropdownMenuItem onClick={() => cambiarEstado(f.id!, 'pagada')}>
+                          Pagada
+                        </DropdownMenuItem>
+                        <DropdownMenuItem onClick={() => cambiarEstado(f.id!, 'anulada')}>
+                          Anulada
+                        </DropdownMenuItem>
+                        <DropdownMenuSeparator />
+                        <DropdownMenuItem 
+                          onClick={() => setDeleteId(f.id!)}
+                          className="text-destructive focus:text-destructive"
+                        >
+                          <Trash2 className="w-4 h-4 mr-2" /> Eliminar
+                        </DropdownMenuItem>
+                      </DropdownMenuContent>
+                    </DropdownMenu>
+                  </div>
+                </CardContent>
+              </Card>
+            ))
+          )}
         </div>
       </div>
     </>
