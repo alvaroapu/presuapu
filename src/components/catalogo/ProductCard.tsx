@@ -5,6 +5,7 @@ import { Checkbox } from "@/components/ui/checkbox";
 import { Calculator, Check } from "lucide-react";
 import { formatCurrency } from "@/lib/formatters";
 import type { ProductoConCategoria } from "@/hooks/useProductos";
+import type { ProductoTarifa } from "@/hooks/useProductoTarifas";
 
 interface ProductCardProps {
   producto: ProductoConCategoria;
@@ -13,6 +14,7 @@ interface ProductCardProps {
   showCalculator: boolean;
   onToggleSelection: (e: React.MouseEvent) => void;
   onToggleCalculator: (e: React.MouseEvent) => void;
+  tarifas?: ProductoTarifa[];
 }
 
 const getTipoLabel = (tipo: string) => {
@@ -25,6 +27,16 @@ const getTipoLabel = (tipo: string) => {
   }
 };
 
+const getUnidad = (tipo: string) => {
+  switch (tipo) {
+    case 'por_metro': return '/m²';
+    case 'por_hora': return '/h';
+    case 'por_unidad': return '/ud';
+    case 'por_placa': return '';
+    default: return '';
+  }
+};
+
 export function ProductCard({
   producto: p,
   selectionMode,
@@ -32,7 +44,35 @@ export function ProductCard({
   showCalculator,
   onToggleSelection,
   onToggleCalculator,
+  tarifas,
 }: ProductCardProps) {
+  // Obtener precio base: primero de tarifas por rangos, luego del modelo legacy
+  const primeraTarifa = tarifas?.[0];
+  const tieneTarifasVariables = !!primeraTarifa;
+
+  const getPrecioBase = () => {
+    if (primeraTarifa) {
+      return formatCurrency(primeraTarifa.precio_unitario);
+    }
+    // Fallback al modelo legacy
+    if (p.tipo_calculo === 'por_metro') {
+      return formatCurrency(p.precio_metro_tarifa_1 || 0);
+    }
+    if (p.tipo_calculo === 'por_hora') {
+      return formatCurrency(p.precio_por_hora || 0);
+    }
+    if (p.tipo_calculo === 'por_unidad') {
+      return formatCurrency(p.precio_por_unidad || 0);
+    }
+    if (p.tipo_calculo === 'por_placa') {
+      return `A4: ${formatCurrency(p.precio_placa_a4 || 0)}`;
+    }
+    return null;
+  };
+
+  const precioBase = getPrecioBase();
+  const unidad = p.tipo_calculo !== 'por_placa' ? getUnidad(p.tipo_calculo || '') : '';
+
   if (selectionMode) {
     return (
       <div
@@ -61,12 +101,11 @@ export function ProductCard({
               <p className="text-xs text-muted-foreground truncate mt-1">{p.descripcion}</p>
             )}
             <div className="flex items-center gap-4 mt-2 text-sm">
-              <span className="font-medium">
-                {p.tipo_calculo === 'por_metro' && formatCurrency(p.precio_metro_tarifa_1 || 0)}
-                {p.tipo_calculo === 'por_hora' && formatCurrency(p.precio_por_hora || 0)}
-                {p.tipo_calculo === 'por_unidad' && formatCurrency(p.precio_por_unidad || 0)}
-                {p.tipo_calculo === 'por_placa' && `A4: ${formatCurrency(p.precio_placa_a4 || 0)}`}
-              </span>
+              {precioBase && (
+                <span className="font-medium">
+                  {tieneTarifasVariables ? `Desde ${precioBase}${unidad}` : `${precioBase}${unidad}`}
+                </span>
+              )}
             </div>
           </div>
         </div>
@@ -98,12 +137,11 @@ export function ProductCard({
           <div className="flex items-center gap-4 mt-2 text-sm flex-wrap">
             <div>
               <span className="text-muted-foreground text-xs">Precio: </span>
-              <span className="font-medium">
-                {p.tipo_calculo === 'por_metro' && formatCurrency(p.precio_metro_tarifa_1 || 0)}
-                {p.tipo_calculo === 'por_hora' && formatCurrency(p.precio_por_hora || 0)}
-                {p.tipo_calculo === 'por_unidad' && formatCurrency(p.precio_por_unidad || 0)}
-                {p.tipo_calculo === 'por_placa' && `A4: ${formatCurrency(p.precio_placa_a4 || 0)}`}
-              </span>
+              {precioBase && (
+                <span className="font-medium">
+                  {tieneTarifasVariables ? `Desde ${precioBase}${unidad}` : `${precioBase}${unidad}`}
+                </span>
+              )}
             </div>
             {p.precio_montaje && p.precio_montaje > 0 && (
               <div>
@@ -111,7 +149,7 @@ export function ProductCard({
                 <span className="text-primary font-medium">{formatCurrency(p.precio_montaje)}</span>
               </div>
             )}
-            {p.tipo_calculo === 'por_metro' && p.precio_metro_tarifa_2 && (
+            {!tieneTarifasVariables && p.tipo_calculo === 'por_metro' && p.precio_metro_tarifa_2 && (
               <div>
                 <span className="text-muted-foreground text-xs">Tarifa 2: </span>
                 <span>{formatCurrency(p.precio_metro_tarifa_2)}</span>
