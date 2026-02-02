@@ -3,6 +3,7 @@ import { Button } from "@/components/ui/button";
 import { Plus, ChevronDown, Trash2, X } from "lucide-react";
 import { useProductos } from "@/hooks/useProductos";
 import { useCategorias } from "@/hooks/useCategorias";
+import { useAllProductoTarifas } from "@/hooks/useProductoTarifas";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@/components/ui/collapsible";
 import { useState } from "react";
@@ -30,6 +31,7 @@ import { useToast } from "@/hooks/use-toast";
 export default function Catalogo() {
   const { data: productos, isLoading: loadingProductos } = useProductos();
   const { data: categorias, isLoading: loadingCategorias } = useCategorias();
+  const { data: tarifasPorProducto } = useAllProductoTarifas();
   const [openCategories, setOpenCategories] = useState<string[]>([]);
   const [calculatorProductId, setCalculatorProductId] = useState<string | null>(null);
   const [selectionMode, setSelectionMode] = useState(false);
@@ -215,6 +217,7 @@ export default function Catalogo() {
                       showCalculator={calculatorProductId === p.id}
                       onToggleSelection={(e) => toggleProductSelection(e, p.id!)}
                       onToggleCalculator={(e) => toggleCalculator(e, p.id!)}
+                      tarifas={tarifasPorProducto?.[p.id!]}
                     />
                     {calculatorProductId === p.id && !selectionMode && (
                       <div className="px-3 pb-3">
