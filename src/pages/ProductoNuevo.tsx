@@ -7,15 +7,19 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { ArrowLeft } from "lucide-react";
 import { useCategorias } from "@/hooks/useCategorias";
 import { useCreateProducto } from "@/hooks/useProductos";
+import { useSaveProductoTarifas } from "@/hooks/useProductoTarifas";
 import { useToast } from "@/hooks/use-toast";
 import { useState } from "react";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { Switch } from "@/components/ui/switch";
+import { TarifasEditor, type Tarifa } from "@/components/catalogo/TarifasEditor";
 
 export default function ProductoNuevo() {
   const navigate = useNavigate();
   const { toast } = useToast();
   const { data: categorias } = useCategorias();
   const createProducto = useCreateProducto();
+  const saveTarifas = useSaveProductoTarifas();
 
   const [form, setForm] = useState({
     categoria_id: '',
@@ -36,6 +40,19 @@ export default function ProductoNuevo() {
     precio_placa_a4: 0
   });
 
+  const [tarifas, setTarifas] = useState<Tarifa[]>([]);
+  const [usarTarifasVariables, setUsarTarifasVariables] = useState(false);
+
+  const getUnidad = () => {
+    switch (form.tipo_calculo) {
+      case 'por_metro': return 'm²';
+      case 'por_unidad': return 'uds';
+      case 'por_hora': return 'h';
+      case 'por_placa': return 'placas';
+      default: return 'uds';
+    }
+  };
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!form.categoria_id || !form.nombre) {
@@ -44,7 +61,13 @@ export default function ProductoNuevo() {
     }
 
     try {
-      await createProducto.mutateAsync(form);
+      const producto = await createProducto.mutateAsync(form);
+      
+      // Guardar tarifas si está habilitado
+      if (usarTarifasVariables && tarifas.length > 0 && producto.id) {
+        await saveTarifas.mutateAsync({ productoId: producto.id, tarifas });
+      }
+      
       toast({ title: "Producto creado" });
       navigate('/catalogo');
     } catch {
@@ -54,17 +77,17 @@ export default function ProductoNuevo() {
 
   return (
     <form onSubmit={handleSubmit} className="space-y-6">
-      <div className="flex items-center justify-between">
+      <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
         <div className="flex items-center gap-4">
           <Button type="button" variant="ghost" size="icon" onClick={() => navigate(-1)}>
             <ArrowLeft className="w-4 h-4" />
           </Button>
-          <h1 className="text-2xl font-bold">Nuevo Producto</h1>
+          <h1 className="text-xl sm:text-2xl font-bold">Nuevo Producto</h1>
         </div>
         <div className="flex gap-2">
-          <Button type="button" variant="outline" onClick={() => navigate(-1)}>Cancelar</Button>
-          <Button type="submit" disabled={createProducto.isPending}>
-            {createProducto.isPending ? 'Guardando...' : 'Guardar'}
+          <Button type="button" variant="outline" size="sm" onClick={() => navigate(-1)}>Cancelar</Button>
+          <Button type="submit" size="sm" disabled={createProducto.isPending || saveTarifas.isPending}>
+            {createProducto.isPending || saveTarifas.isPending ? 'Guardando...' : 'Guardar'}
           </Button>
         </div>
       </div>
@@ -116,76 +139,108 @@ export default function ProductoNuevo() {
         </CardContent>
       </Card>
 
-      {form.tipo_calculo === 'por_metro' && (
-        <Card>
-          <CardHeader>
-            <CardTitle>Precios por metro cuadrado</CardTitle>
-          </CardHeader>
-          <CardContent className="grid gap-4 md:grid-cols-2">
-            <div className="space-y-2">
-              <Label>Precio fijo (arranque)</Label>
-              <Input type="number" step="0.01" value={form.precio_base_fijo} onChange={e => setForm({...form, precio_base_fijo: Number(e.target.value)})} />
+      {/* Opción de tarifas variables */}
+      <Card>
+        <CardHeader>
+          <div className="flex items-center justify-between">
+            <CardTitle>Modo de precios</CardTitle>
+            <div className="flex items-center gap-2">
+              <Switch 
+                checked={usarTarifasVariables} 
+                onCheckedChange={setUsarTarifasVariables} 
+              />
+              <Label className="text-sm">Usar tarifas por rangos</Label>
             </div>
-            <div className="space-y-2">
-              <Label>Límite Tarifa 1 (m²)</Label>
-              <Input type="number" value={form.metros_limite_tarifa_1} onChange={e => setForm({...form, metros_limite_tarifa_1: Number(e.target.value)})} />
-            </div>
-            <div className="space-y-2">
-              <Label>Precio/m² Tarifa 1 (≤ límite)</Label>
-              <Input type="number" step="0.01" value={form.precio_metro_tarifa_1} onChange={e => setForm({...form, precio_metro_tarifa_1: Number(e.target.value)})} />
-            </div>
-            <div className="space-y-2">
-              <Label>Precio/m² Tarifa 2 (&gt; límite)</Label>
-              <Input type="number" step="0.01" value={form.precio_metro_tarifa_2} onChange={e => setForm({...form, precio_metro_tarifa_2: Number(e.target.value)})} />
-            </div>
-          </CardContent>
-        </Card>
-      )}
+          </div>
+          <p className="text-sm text-muted-foreground">
+            {usarTarifasVariables 
+              ? "El precio varía según la cantidad pedida (ej: 1-5m a un precio, 6-10m a otro)"
+              : "Precio fijo o con dos tarifas simples (modelo tradicional)"
+            }
+          </p>
+        </CardHeader>
+      </Card>
 
-      {form.tipo_calculo === 'por_unidad' && (
-        <Card>
-          <CardHeader>
-            <CardTitle>Precio por unidad</CardTitle>
-          </CardHeader>
-          <CardContent>
-            <div className="space-y-2 max-w-xs">
-              <Label>Precio por unidad (€)</Label>
-              <Input type="number" step="0.01" value={form.precio_por_unidad} onChange={e => setForm({...form, precio_por_unidad: Number(e.target.value)})} />
-            </div>
-          </CardContent>
-        </Card>
-      )}
+      {usarTarifasVariables ? (
+        <TarifasEditor 
+          tarifas={tarifas} 
+          onChange={setTarifas}
+          unidad={getUnidad()}
+        />
+      ) : (
+        <>
+          {form.tipo_calculo === 'por_metro' && (
+            <Card>
+              <CardHeader>
+                <CardTitle>Precios por metro cuadrado</CardTitle>
+              </CardHeader>
+              <CardContent className="grid gap-4 md:grid-cols-2">
+                <div className="space-y-2">
+                  <Label>Precio fijo (arranque)</Label>
+                  <Input type="number" step="0.01" value={form.precio_base_fijo} onChange={e => setForm({...form, precio_base_fijo: Number(e.target.value)})} />
+                </div>
+                <div className="space-y-2">
+                  <Label>Límite Tarifa 1 (m²)</Label>
+                  <Input type="number" value={form.metros_limite_tarifa_1} onChange={e => setForm({...form, metros_limite_tarifa_1: Number(e.target.value)})} />
+                </div>
+                <div className="space-y-2">
+                  <Label>Precio/m² Tarifa 1 (≤ límite)</Label>
+                  <Input type="number" step="0.01" value={form.precio_metro_tarifa_1} onChange={e => setForm({...form, precio_metro_tarifa_1: Number(e.target.value)})} />
+                </div>
+                <div className="space-y-2">
+                  <Label>Precio/m² Tarifa 2 (&gt; límite)</Label>
+                  <Input type="number" step="0.01" value={form.precio_metro_tarifa_2} onChange={e => setForm({...form, precio_metro_tarifa_2: Number(e.target.value)})} />
+                </div>
+              </CardContent>
+            </Card>
+          )}
 
-      {form.tipo_calculo === 'por_hora' && (
-        <Card>
-          <CardHeader>
-            <CardTitle>Precio por hora</CardTitle>
-          </CardHeader>
-          <CardContent>
-            <div className="space-y-2 max-w-xs">
-              <Label>Precio por hora (€)</Label>
-              <Input type="number" step="0.01" value={form.precio_por_hora} onChange={e => setForm({...form, precio_por_hora: Number(e.target.value)})} />
-            </div>
-          </CardContent>
-        </Card>
-      )}
+          {form.tipo_calculo === 'por_unidad' && (
+            <Card>
+              <CardHeader>
+                <CardTitle>Precio por unidad</CardTitle>
+              </CardHeader>
+              <CardContent>
+                <div className="space-y-2 max-w-xs">
+                  <Label>Precio por unidad (€)</Label>
+                  <Input type="number" step="0.01" value={form.precio_por_unidad} onChange={e => setForm({...form, precio_por_unidad: Number(e.target.value)})} />
+                </div>
+              </CardContent>
+            </Card>
+          )}
 
-      {form.tipo_calculo === 'por_placa' && (
-        <Card>
-          <CardHeader>
-            <CardTitle>Precios por placa</CardTitle>
-          </CardHeader>
-          <CardContent className="grid gap-4 md:grid-cols-2">
-            <div className="space-y-2">
-              <Label>Precio placa A4 (€)</Label>
-              <Input type="number" step="0.01" value={form.precio_placa_a4} onChange={e => setForm({...form, precio_placa_a4: Number(e.target.value)})} />
-            </div>
-            <div className="space-y-2">
-              <Label>Precio placa A3 (€)</Label>
-              <Input type="number" step="0.01" value={form.precio_placa_a3} onChange={e => setForm({...form, precio_placa_a3: Number(e.target.value)})} />
-            </div>
-          </CardContent>
-        </Card>
+          {form.tipo_calculo === 'por_hora' && (
+            <Card>
+              <CardHeader>
+                <CardTitle>Precio por hora</CardTitle>
+              </CardHeader>
+              <CardContent>
+                <div className="space-y-2 max-w-xs">
+                  <Label>Precio por hora (€)</Label>
+                  <Input type="number" step="0.01" value={form.precio_por_hora} onChange={e => setForm({...form, precio_por_hora: Number(e.target.value)})} />
+                </div>
+              </CardContent>
+            </Card>
+          )}
+
+          {form.tipo_calculo === 'por_placa' && (
+            <Card>
+              <CardHeader>
+                <CardTitle>Precios por placa</CardTitle>
+              </CardHeader>
+              <CardContent className="grid gap-4 md:grid-cols-2">
+                <div className="space-y-2">
+                  <Label>Precio placa A4 (€)</Label>
+                  <Input type="number" step="0.01" value={form.precio_placa_a4} onChange={e => setForm({...form, precio_placa_a4: Number(e.target.value)})} />
+                </div>
+                <div className="space-y-2">
+                  <Label>Precio placa A3 (€)</Label>
+                  <Input type="number" step="0.01" value={form.precio_placa_a3} onChange={e => setForm({...form, precio_placa_a3: Number(e.target.value)})} />
+                </div>
+              </CardContent>
+            </Card>
+          )}
+        </>
       )}
 
       <Card>
