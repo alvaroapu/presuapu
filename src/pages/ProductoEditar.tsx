@@ -20,7 +20,7 @@ export default function ProductoEditar() {
   const navigate = useNavigate();
   const { toast } = useToast();
   const { data: categorias } = useCategorias();
-  const { data: producto, isLoading } = useProducto(id);
+  const { data: producto, isLoading, isError } = useProducto(id);
   const { data: tarifasExistentes } = useProductoTarifas(id);
   const updateProducto = useUpdateProducto();
   const saveTarifas = useSaveProductoTarifas();
@@ -102,6 +102,10 @@ export default function ProductoEditar() {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!id) return;
+    if (!form.categoria_id) {
+      toast({ title: "Selecciona una categoría", variant: "destructive" });
+      return;
+    }
 
     try {
       await updateProducto.mutateAsync({ id, ...form });
@@ -128,6 +132,15 @@ export default function ProductoEditar() {
       toast({ title: "Error al actualizar producto", description: msg, variant: "destructive" });
     }
   };
+
+  if (isError) {
+    return (
+      <div className="space-y-4">
+        <p className="text-destructive">Error al cargar el producto. Recarga la página.</p>
+        <Button variant="outline" onClick={() => window.location.reload()}>Recargar</Button>
+      </div>
+    );
+  }
 
   if (isLoading) {
     return (
