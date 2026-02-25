@@ -43,7 +43,8 @@ export default function ProductoEditar() {
     precio_placa_a3: 0,
     precio_placa_a4: 0,
     activo: true,
-    metros_gratis: 0
+    metros_gratis: 0,
+    bonificacion_cada_n_metros: 0
   });
 
   const [tarifas, setTarifas] = useState<Tarifa[]>([]);
@@ -69,7 +70,8 @@ export default function ProductoEditar() {
         precio_placa_a3: producto.precio_placa_a3 || 0,
         precio_placa_a4: producto.precio_placa_a4 || 0,
         activo: producto.activo ?? true,
-        metros_gratis: (producto as any).metros_gratis || 0
+        metros_gratis: (producto as any).metros_gratis || 0,
+        bonificacion_cada_n_metros: (producto as any).bonificacion_cada_n_metros || 0
       });
     }
   }, [producto]);
@@ -230,18 +232,31 @@ export default function ProductoEditar() {
             <CardHeader>
               <CardTitle>Bonificación</CardTitle>
             </CardHeader>
-            <CardContent>
-              <div className="space-y-2 max-w-xs">
-                <Label>{getUnidad() === 'm²' ? 'Metros' : getUnidad() === 'h' ? 'Horas' : 'Unidades'} gratis (regalo)</Label>
-                <Input 
-                  type="number" 
-                  step="0.1" 
-                  min="0" 
-                  value={form.metros_gratis} 
-                  onChange={e => setForm({...form, metros_gratis: Number(e.target.value)})} 
+            <CardContent className="grid gap-4 md:grid-cols-2">
+              <div className="space-y-2">
+                <Label>{getUnidad() === 'm²' ? 'Metros' : getUnidad() === 'h' ? 'Horas' : 'Unidades'} gratis fijos (regalo)</Label>
+                <Input
+                  type="number"
+                  step="0.1"
+                  min="0"
+                  value={form.metros_gratis}
+                  onChange={e => setForm({...form, metros_gratis: Number(e.target.value)})}
                 />
                 <p className="text-xs text-muted-foreground">
-                  Cantidad de regalo que no se factura (ej: bono promocional)
+                  Cantidad de regalo fija que no se factura (ej: bono promocional)
+                </p>
+              </div>
+              <div className="space-y-2">
+                <Label>Bonificación automática (cada N {getUnidad()})</Label>
+                <Input
+                  type="number"
+                  step="1"
+                  min="0"
+                  value={form.bonificacion_cada_n_metros}
+                  onChange={e => setForm({...form, bonificacion_cada_n_metros: Number(e.target.value)})}
+                />
+                <p className="text-xs text-muted-foreground">
+                  Por cada N {getUnidad()} comprados, 1 {getUnidad()} gratis automáticamente. 0 = desactivado. Ej: 5 → cada 5 m² comprados = 1 m² gratis
                 </p>
               </div>
             </CardContent>
@@ -265,9 +280,14 @@ export default function ProductoEditar() {
                   <Input type="number" step="0.01" value={form.precio_base_fijo} onChange={e => setForm({...form, precio_base_fijo: Number(e.target.value)})} />
                 </div>
                 <div className="space-y-2">
-                  <Label>Metros gratis (bonificación)</Label>
+                  <Label>Metros gratis fijos (bonificación)</Label>
                   <Input type="number" step="0.1" min="0" value={form.metros_gratis} onChange={e => setForm({...form, metros_gratis: Number(e.target.value)})} />
-                  <p className="text-xs text-muted-foreground">Metros de regalo que no se facturan</p>
+                  <p className="text-xs text-muted-foreground">Metros de regalo fijos que no se facturan</p>
+                </div>
+                <div className="space-y-2">
+                  <Label>Bonificación automática (cada N m²)</Label>
+                  <Input type="number" step="1" min="0" value={form.bonificacion_cada_n_metros} onChange={e => setForm({...form, bonificacion_cada_n_metros: Number(e.target.value)})} />
+                  <p className="text-xs text-muted-foreground">Por cada N m² comprados, 1 m² gratis. 0 = desactivado. Ej: 5 → cada 5 m² = 1 m² gratis</p>
                 </div>
                 <div className="space-y-2">
                   <Label>Límite Tarifa 1 (m²)</Label>

@@ -48,6 +48,8 @@ export interface Producto {
   precio_por_hora: number | null;
   precio_placa_a3: number | null;
   precio_placa_a4: number | null;
+  metros_gratis: number;
+  bonificacion_cada_n_metros: number;
   activo: boolean;
   created_at: string;
   updated_at: string;
@@ -164,6 +166,8 @@ export interface PrecioCalculado {
     precio_placa?: number;
     cantidad?: number;
     metros_gratis?: number;
+    metros_gratis_auto?: number;
+    bonificacion_cada_n_metros?: number;
     cantidad_facturable?: number;
     rangos?: Array<{
       desde: number;
