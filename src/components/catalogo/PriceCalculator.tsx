@@ -108,9 +108,15 @@ export function PriceCalculator({ producto, onClose }: PriceCalculatorProps) {
               <span>{formatCurrency(precio.desglose.precio_fijo)}</span>
             </div>
           )}
-          {precio.desglose.metros_gratis !== undefined && precio.desglose.metros_gratis > 0 && (
+          {precio.desglose.metros_gratis_auto !== undefined && precio.desglose.metros_gratis_auto > 0 && precio.desglose.bonificacion_cada_n_metros && (
+            <div className="flex justify-between text-sm italic text-green-600">
+              <span>🎁 Bono automático: cada {formatNumber(precio.desglose.bonificacion_cada_n_metros)} {getUnitLabel()} → 1 {getUnitLabel()} gratis ({formatNumber(precio.desglose.metros_gratis_auto)} {getUnitLabel()} gratis)</span>
+              <span className="text-muted-foreground">-{formatCurrency(0)}</span>
+            </div>
+          )}
+          {precio.desglose.metros_gratis !== undefined && precio.desglose.metros_gratis > (precio.desglose.metros_gratis_auto ?? 0) && (
             <div className="flex justify-between text-sm italic text-primary">
-              <span>🎁 Regalo: {formatNumber(precio.desglose.metros_gratis)} {getUnitLabel()} gratis</span>
+              <span>🎁 Regalo fijo: {formatNumber(precio.desglose.metros_gratis - (precio.desglose.metros_gratis_auto ?? 0))} {getUnitLabel()} gratis</span>
               <span className="text-muted-foreground">-{formatCurrency(0)}</span>
             </div>
           )}
