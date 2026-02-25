@@ -116,8 +116,10 @@ export default function ProductoEditar() {
       
       toast({ title: "Producto actualizado" });
       navigate('/catalogo');
-    } catch {
-      toast({ title: "Error al actualizar producto", variant: "destructive" });
+    } catch (err: unknown) {
+      const msg = err instanceof Error ? err.message : String(err);
+      console.error("Error al actualizar producto:", err);
+      toast({ title: "Error al actualizar producto", description: msg, variant: "destructive" });
     }
   };
 
