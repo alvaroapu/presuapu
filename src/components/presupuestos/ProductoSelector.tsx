@@ -29,7 +29,7 @@ interface LineaLocal {
 interface ProductoSelectorProps {
   open: boolean;
   onClose: () => void;
-  onAdd: (linea: LineaLocal) => void;
+  onAdd: (lineas: LineaLocal[]) => void;
 }
 
 export function ProductoSelector({ open, onClose, onAdd }: ProductoSelectorProps) {
@@ -99,9 +99,11 @@ export function ProductoSelector({ open, onClose, onAdd }: ProductoSelectorProps
   const handleAdd = () => {
     if (!productoSeleccionado) return;
 
+    const lineasToAdd: LineaLocal[] = [];
+
     if (precioManual && importeManual > 0) {
       const precioUnitario = cantidad > 0 ? importeManual / cantidad : importeManual;
-      onAdd({
+      lineasToAdd.push({
         id: '',
         producto_id: productoSeleccionado.id,
         producto_nombre: productoSeleccionado.nombre,
@@ -113,7 +115,7 @@ export function ProductoSelector({ open, onClose, onAdd }: ProductoSelectorProps
         importe: importeManual
       });
     } else if (precio) {
-      onAdd({
+      lineasToAdd.push({
         id: '',
         producto_id: productoSeleccionado.id,
         producto_nombre: productoSeleccionado.nombre,
@@ -124,7 +126,24 @@ export function ProductoSelector({ open, onClose, onAdd }: ProductoSelectorProps
         precio_unitario: precio.precio_unitario,
         importe: precio.importe_total
       });
+
+      const metrosGratis = precio.desglose.metros_gratis;
+      if (metrosGratis && metrosGratis > 0) {
+        lineasToAdd.push({
+          id: '',
+          producto_id: productoSeleccionado.id,
+          producto_nombre: productoSeleccionado.nombre,
+          producto_categoria: productoSeleccionado.categoria_nombre,
+          cantidad: metrosGratis,
+          tipo_cantidad: tipoCantidad,
+          descripcion: '🎁 Bonificación incluida',
+          precio_unitario: 0,
+          importe: 0
+        });
+      }
     }
+
+    onAdd(lineasToAdd);
   };
 
   const canAdd = precioManual 
@@ -133,7 +152,7 @@ export function ProductoSelector({ open, onClose, onAdd }: ProductoSelectorProps
 
   const handleAddPersonalizado = (linea: LineaLocal) => {
     setShowPersonalizado(false);
-    onAdd(linea);
+    onAdd([linea]);
   };
 
   return (

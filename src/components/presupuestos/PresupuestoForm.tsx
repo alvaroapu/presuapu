@@ -129,8 +129,9 @@ export function PresupuestoForm({
   const ivaImporte = baseImponible * (ivaPorcentaje / 100);
   const total = baseImponible + ivaImporte;
 
-  const handleAddLinea = (linea: LineaLocal) => {
-    setLineas([...lineas, { ...linea, id: crypto.randomUUID() }]);
+  const handleAddLinea = (nuevasLineas: LineaLocal[]) => {
+    const withIds = nuevasLineas.map(l => ({ ...l, id: crypto.randomUUID() }));
+    setLineas(prev => [...prev, ...withIds]);
     setShowProductoSelector(false);
   };
 

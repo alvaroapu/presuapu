@@ -53,7 +53,8 @@ export function SortableLineaItem({ linea, onRemove, onEdit }: SortableLineaItem
       style={style}
       className={cn(
         "flex items-center gap-4 p-4 border rounded-lg bg-card transition-shadow",
-        isDragging && "shadow-lg opacity-90 ring-2 ring-primary/20"
+        isDragging && "shadow-lg opacity-90 ring-2 ring-primary/20",
+        linea.importe === 0 && linea.precio_unitario === 0 && "border-green-200 bg-green-50/50 dark:bg-green-950/20 dark:border-green-900"
       )}
     >
       <button
@@ -79,8 +80,11 @@ export function SortableLineaItem({ linea, onRemove, onEdit }: SortableLineaItem
         {linea.cantidad} {getUnidadLabel(linea.tipo_cantidad)}
       </div>
       
-      <div className="font-medium w-24 text-right whitespace-nowrap">
-        {formatCurrency(linea.importe)}
+      <div className={cn(
+        "font-medium w-24 text-right whitespace-nowrap",
+        linea.importe === 0 && linea.precio_unitario === 0 && "text-green-600 dark:text-green-400"
+      )}>
+        {linea.importe === 0 && linea.precio_unitario === 0 ? "GRATIS" : formatCurrency(linea.importe)}
       </div>
       
       {onEdit && (
