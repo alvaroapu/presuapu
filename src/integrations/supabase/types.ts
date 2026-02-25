@@ -620,6 +620,7 @@ export type Database = {
       productos: {
         Row: {
           activo: boolean | null
+          bonificacion_cada_n_metros: number | null
           categoria_id: string
           codigo: string | null
           created_at: string | null
@@ -644,6 +645,7 @@ export type Database = {
         }
         Insert: {
           activo?: boolean | null
+          bonificacion_cada_n_metros?: number | null
           categoria_id: string
           codigo?: string | null
           created_at?: string | null
@@ -668,6 +670,7 @@ export type Database = {
         }
         Update: {
           activo?: boolean | null
+          bonificacion_cada_n_metros?: number | null
           categoria_id?: string
           codigo?: string | null
           created_at?: string | null
