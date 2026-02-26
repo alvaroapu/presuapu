@@ -29,7 +29,9 @@ export default function ProductoEditar() {
     categoria_id: '',
     nombre: '',
     codigo: '',
+    marca: '',
     descripcion: '',
+    informacion_interna: '',
     tipo_calculo: 'por_metro',
     precio_material: 0,
     precio_preparacion: 0,
@@ -56,7 +58,9 @@ export default function ProductoEditar() {
         categoria_id: producto.categoria_id,
         nombre: producto.nombre,
         codigo: producto.codigo || '',
+        marca: (producto as any).marca || '',
         descripcion: producto.descripcion || '',
+        informacion_interna: (producto as any).informacion_interna || '',
         tipo_calculo: producto.tipo_calculo,
         precio_material: producto.precio_material || 0,
         precio_preparacion: producto.precio_preparacion || 0,
@@ -180,6 +184,10 @@ export default function ProductoEditar() {
           <div className="space-y-2">
             <Label>Código (opcional)</Label>
             <Input value={form.codigo} onChange={e => setForm({...form, codigo: e.target.value})} />
+          </div>
+          <div className="space-y-2">
+            <Label>Marca (opcional)</Label>
+            <Input value={form.marca} onChange={e => setForm({...form, marca: e.target.value})} placeholder="Ej: HP, Canon, 3M..." />
           </div>
           <div className="space-y-2">
             <Label>Tipo de cálculo *</Label>
@@ -371,6 +379,23 @@ export default function ProductoEditar() {
           <div className="space-y-2">
             <Label>Coste montaje</Label>
             <Input type="number" step="0.01" value={form.precio_montaje} onChange={e => setForm({...form, precio_montaje: Number(e.target.value)})} />
+          </div>
+        </CardContent>
+      </Card>
+
+      <Card>
+        <CardHeader>
+          <CardTitle>Información interna</CardTitle>
+          <p className="text-sm text-muted-foreground">Notas internas sobre el producto. No se muestran al cliente.</p>
+        </CardHeader>
+        <CardContent>
+          <div className="space-y-2">
+            <Textarea
+              value={form.informacion_interna}
+              onChange={e => setForm({...form, informacion_interna: e.target.value})}
+              placeholder="Proveedor, referencias internas, instrucciones de producción..."
+              rows={4}
+            />
           </div>
         </CardContent>
       </Card>
