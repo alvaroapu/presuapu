@@ -180,6 +180,27 @@ export interface PrecioCalculado {
   };
 }
 
+export type EstadoProyecto = 'nuevo' | 'recopilando' | 'listo' | 'presupuestado' | 'descartado';
+export type PrioridadProyecto = 'baja' | 'media' | 'alta' | 'urgente';
+
+export interface Proyecto {
+  id: string;
+  titulo: string;
+  cliente_id: string | null;
+  cliente_nombre: string | null;
+  estado: EstadoProyecto;
+  prioridad: PrioridadProyecto;
+  descripcion: string | null;
+  medidas: string | null;
+  materiales_necesarios: string | null;
+  coste_estimado: number | null;
+  notas: string | null;
+  fecha_limite: string | null;
+  presupuesto_id: string | null;
+  created_at: string;
+  updated_at: string;
+}
+
 export interface StockUbicacion {
   id: string;
   nombre: string;

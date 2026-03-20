@@ -8,7 +8,8 @@ import {
   Package,
   Settings,
   Plus,
-  Warehouse
+  Warehouse,
+  ClipboardList
 } from "lucide-react";
 import { NavLink, useLocation } from "react-router-dom";
 import {
@@ -30,6 +31,7 @@ import logo from "@/assets/logo.png";
 
 const menuItems = [
   { title: "Dashboard", url: "/", icon: LayoutDashboard },
+  { title: "Próximos Proyectos", url: "/proyectos", icon: ClipboardList },
   { title: "Presupuestos", url: "/presupuestos", icon: FileText },
   { title: "Facturas", url: "/facturas", icon: Receipt },
   { title: "Facturación", url: "/facturas/dashboard", icon: BarChart3 },

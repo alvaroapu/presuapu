@@ -617,6 +617,75 @@ export type Database = {
           },
         ]
       }
+      proyectos: {
+        Row: {
+          id: string
+          titulo: string
+          cliente_id: string | null
+          cliente_nombre: string | null
+          estado: string
+          prioridad: string
+          descripcion: string | null
+          medidas: string | null
+          materiales_necesarios: string | null
+          coste_estimado: number | null
+          notas: string | null
+          fecha_limite: string | null
+          presupuesto_id: string | null
+          created_at: string | null
+          updated_at: string | null
+        }
+        Insert: {
+          id?: string
+          titulo: string
+          cliente_id?: string | null
+          cliente_nombre?: string | null
+          estado?: string
+          prioridad?: string
+          descripcion?: string | null
+          medidas?: string | null
+          materiales_necesarios?: string | null
+          coste_estimado?: number | null
+          notas?: string | null
+          fecha_limite?: string | null
+          presupuesto_id?: string | null
+          created_at?: string | null
+          updated_at?: string | null
+        }
+        Update: {
+          id?: string
+          titulo?: string
+          cliente_id?: string | null
+          cliente_nombre?: string | null
+          estado?: string
+          prioridad?: string
+          descripcion?: string | null
+          medidas?: string | null
+          materiales_necesarios?: string | null
+          coste_estimado?: number | null
+          notas?: string | null
+          fecha_limite?: string | null
+          presupuesto_id?: string | null
+          created_at?: string | null
+          updated_at?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "proyectos_cliente_id_fkey"
+            columns: ["cliente_id"]
+            isOneToOne: false
+            referencedRelation: "clientes"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "proyectos_presupuesto_id_fkey"
+            columns: ["presupuesto_id"]
+            isOneToOne: false
+            referencedRelation: "presupuestos"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       stock_productos: {
         Row: {
           id: string
