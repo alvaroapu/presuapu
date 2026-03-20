@@ -1,13 +1,14 @@
-import { 
-  LayoutDashboard, 
-  FileText, 
+import {
+  LayoutDashboard,
+  FileText,
   Receipt,
   BarChart3,
   Clock,
-  Users, 
-  Package, 
+  Users,
+  Package,
   Settings,
-  Plus
+  Plus,
+  Warehouse
 } from "lucide-react";
 import { NavLink, useLocation } from "react-router-dom";
 import {
@@ -39,6 +40,7 @@ const menuItems = [
 
 const configItems = [
   { title: "Configuración", url: "/configuracion", icon: Settings },
+  { title: "Stock Interno", url: "/stock", icon: Warehouse },
 ];
 
 export function AppSidebar() {
