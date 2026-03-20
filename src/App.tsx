@@ -26,6 +26,9 @@ import ProductoEditar from "@/pages/ProductoEditar";
 import ProductoDuplicar from "@/pages/ProductoDuplicar";
 import Configuracion from "@/pages/Configuracion";
 import Stock from "@/pages/Stock";
+import Proyectos from "@/pages/Proyectos";
+import ProyectoNuevo from "@/pages/ProyectoNuevo";
+import ProyectoDetalle from "@/pages/ProyectoDetalle";
 import Auth from "@/pages/Auth";
 import NotFound from "@/pages/NotFound";
 
@@ -59,6 +62,9 @@ const App = () => (
             <Route path="catalogo/productos/nuevo" element={<ProductoNuevo />} />
             <Route path="catalogo/productos/:id" element={<ProductoEditar />} />
             <Route path="catalogo/productos/:id/duplicar" element={<ProductoDuplicar />} />
+            <Route path="proyectos" element={<Proyectos />} />
+            <Route path="proyectos/nuevo" element={<ProyectoNuevo />} />
+            <Route path="proyectos/:id" element={<ProyectoDetalle />} />
             <Route path="configuracion" element={<Configuracion />} />
             <Route path="stock" element={<Stock />} />
           </Route>
