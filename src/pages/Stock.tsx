@@ -10,6 +10,8 @@ import { CreateUbicacionDialog } from "@/components/stock/CreateUbicacionDialog"
 import { EditUbicacionDialog } from "@/components/stock/EditUbicacionDialog";
 import { AddStockProductoDialog } from "@/components/stock/AddStockProductoDialog";
 import { EditStockProductoDialog } from "@/components/stock/EditStockProductoDialog";
+import { ListaCompra } from "@/components/stock/ListaCompra";
+import { TelegramConfigDialog } from "@/components/stock/TelegramConfigDialog";
 import type { StockUbicacion } from "@/hooks/useStock";
 import {
   Warehouse,
@@ -70,6 +72,7 @@ export default function Stock() {
           </div>
         </div>
         <div className="flex gap-2">
+          <TelegramConfigDialog />
           <AddStockProductoDialog />
           <CreateUbicacionDialog />
         </div>
@@ -120,6 +123,9 @@ export default function Stock() {
           </CardContent>
         </Card>
       </div>
+
+      {/* Lista de Compra */}
+      <ListaCompra />
 
       {/* Search */}
       <div className="relative max-w-sm">

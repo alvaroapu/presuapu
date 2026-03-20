@@ -686,6 +686,89 @@ export type Database = {
           },
         ]
       }
+      lista_compra: {
+        Row: {
+          id: string
+          stock_producto_id: string | null
+          producto_nombre: string
+          cantidad_actual: number
+          cantidad_minima: number
+          unidad: string
+          ubicacion_nombre: string | null
+          notas: string | null
+          comprado: boolean
+          fecha_compra: string | null
+          created_at: string | null
+        }
+        Insert: {
+          id?: string
+          stock_producto_id?: string | null
+          producto_nombre: string
+          cantidad_actual?: number
+          cantidad_minima?: number
+          unidad?: string
+          ubicacion_nombre?: string | null
+          notas?: string | null
+          comprado?: boolean
+          fecha_compra?: string | null
+          created_at?: string | null
+        }
+        Update: {
+          id?: string
+          stock_producto_id?: string | null
+          producto_nombre?: string
+          cantidad_actual?: number
+          cantidad_minima?: number
+          unidad?: string
+          ubicacion_nombre?: string | null
+          notas?: string | null
+          comprado?: boolean
+          fecha_compra?: string | null
+          created_at?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "lista_compra_stock_producto_id_fkey"
+            columns: ["stock_producto_id"]
+            isOneToOne: false
+            referencedRelation: "stock_productos"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      telegram_config: {
+        Row: {
+          id: string
+          chat_id: string
+          bot_token: string
+          activo: boolean
+          dia_resumen: number
+          hora_resumen: number
+          created_at: string | null
+          updated_at: string | null
+        }
+        Insert: {
+          id?: string
+          chat_id: string
+          bot_token: string
+          activo?: boolean
+          dia_resumen?: number
+          hora_resumen?: number
+          created_at?: string | null
+          updated_at?: string | null
+        }
+        Update: {
+          id?: string
+          chat_id?: string
+          bot_token?: string
+          activo?: boolean
+          dia_resumen?: number
+          hora_resumen?: number
+          created_at?: string | null
+          updated_at?: string | null
+        }
+        Relationships: []
+      }
       stock_productos: {
         Row: {
           id: string

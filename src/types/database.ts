@@ -231,6 +231,31 @@ export interface StockProductoConUbicacion extends StockProducto {
   ubicacion_tipo: string;
 }
 
+export interface ListaCompraItem {
+  id: string;
+  stock_producto_id: string | null;
+  producto_nombre: string;
+  cantidad_actual: number;
+  cantidad_minima: number;
+  unidad: string;
+  ubicacion_nombre: string | null;
+  notas: string | null;
+  comprado: boolean;
+  fecha_compra: string | null;
+  created_at: string;
+}
+
+export interface TelegramConfig {
+  id: string;
+  chat_id: string;
+  bot_token: string;
+  activo: boolean;
+  dia_resumen: number;
+  hora_resumen: number;
+  created_at: string;
+  updated_at: string;
+}
+
 export interface ResumenMensual {
   mes: string;
   total_presupuestos: number;
