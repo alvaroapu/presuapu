@@ -180,6 +180,36 @@ export interface PrecioCalculado {
   };
 }
 
+export interface StockUbicacion {
+  id: string;
+  nombre: string;
+  tipo: 'maquina' | 'apartado';
+  descripcion: string | null;
+  activa: boolean;
+  orden: number;
+  created_at: string;
+  updated_at: string;
+}
+
+export interface StockProducto {
+  id: string;
+  ubicacion_id: string;
+  nombre: string;
+  codigo: string | null;
+  descripcion: string | null;
+  cantidad: number;
+  unidad: string;
+  cantidad_minima: number;
+  notas: string | null;
+  created_at: string;
+  updated_at: string;
+}
+
+export interface StockProductoConUbicacion extends StockProducto {
+  ubicacion_nombre: string;
+  ubicacion_tipo: string;
+}
+
 export interface ResumenMensual {
   mes: string;
   total_presupuestos: number;

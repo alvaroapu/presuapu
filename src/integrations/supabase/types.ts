@@ -617,6 +617,89 @@ export type Database = {
           },
         ]
       }
+      stock_productos: {
+        Row: {
+          id: string
+          ubicacion_id: string
+          nombre: string
+          codigo: string | null
+          descripcion: string | null
+          cantidad: number
+          unidad: string
+          cantidad_minima: number | null
+          notas: string | null
+          created_at: string | null
+          updated_at: string | null
+        }
+        Insert: {
+          id?: string
+          ubicacion_id: string
+          nombre: string
+          codigo?: string | null
+          descripcion?: string | null
+          cantidad?: number
+          unidad?: string
+          cantidad_minima?: number | null
+          notas?: string | null
+          created_at?: string | null
+          updated_at?: string | null
+        }
+        Update: {
+          id?: string
+          ubicacion_id?: string
+          nombre?: string
+          codigo?: string | null
+          descripcion?: string | null
+          cantidad?: number
+          unidad?: string
+          cantidad_minima?: number | null
+          notas?: string | null
+          created_at?: string | null
+          updated_at?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "stock_productos_ubicacion_id_fkey"
+            columns: ["ubicacion_id"]
+            isOneToOne: false
+            referencedRelation: "stock_ubicaciones"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      stock_ubicaciones: {
+        Row: {
+          id: string
+          nombre: string
+          tipo: string
+          descripcion: string | null
+          activa: boolean | null
+          orden: number | null
+          created_at: string | null
+          updated_at: string | null
+        }
+        Insert: {
+          id?: string
+          nombre: string
+          tipo?: string
+          descripcion?: string | null
+          activa?: boolean | null
+          orden?: number | null
+          created_at?: string | null
+          updated_at?: string | null
+        }
+        Update: {
+          id?: string
+          nombre?: string
+          tipo?: string
+          descripcion?: string | null
+          activa?: boolean | null
+          orden?: number | null
+          created_at?: string | null
+          updated_at?: string | null
+        }
+        Relationships: []
+      }
       productos: {
         Row: {
           activo: boolean | null

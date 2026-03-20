@@ -25,6 +25,7 @@ import ProductoNuevo from "@/pages/ProductoNuevo";
 import ProductoEditar from "@/pages/ProductoEditar";
 import ProductoDuplicar from "@/pages/ProductoDuplicar";
 import Configuracion from "@/pages/Configuracion";
+import Stock from "@/pages/Stock";
 import Auth from "@/pages/Auth";
 import NotFound from "@/pages/NotFound";
 
@@ -59,6 +60,7 @@ const App = () => (
             <Route path="catalogo/productos/:id" element={<ProductoEditar />} />
             <Route path="catalogo/productos/:id/duplicar" element={<ProductoDuplicar />} />
             <Route path="configuracion" element={<Configuracion />} />
+            <Route path="stock" element={<Stock />} />
           </Route>
           <Route path="*" element={<NotFound />} />
         </Routes>
