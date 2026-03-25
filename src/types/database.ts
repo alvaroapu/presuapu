@@ -221,14 +221,59 @@ export interface StockProducto {
   cantidad: number;
   unidad: string;
   cantidad_minima: number;
+  precio_unitario: number;
+  proveedor: string | null;
   notas: string | null;
   created_at: string;
   updated_at: string;
 }
 
+export interface StockCompra {
+  id: string;
+  stock_producto_id: string;
+  cantidad: number;
+  precio_unitario: number;
+  precio_total: number;
+  proveedor: string | null;
+  notas: string | null;
+  fecha: string;
+  created_at: string;
+  updated_at: string;
+}
+
+export interface StockCompraConProducto extends StockCompra {
+  producto_nombre: string;
+  producto_unidad: string;
+}
+
 export interface StockProductoConUbicacion extends StockProducto {
   ubicacion_nombre: string;
   ubicacion_tipo: string;
+}
+
+export interface ListaCompraItem {
+  id: string;
+  stock_producto_id: string | null;
+  producto_nombre: string;
+  cantidad_actual: number;
+  cantidad_minima: number;
+  unidad: string;
+  ubicacion_nombre: string | null;
+  notas: string | null;
+  comprado: boolean;
+  fecha_compra: string | null;
+  created_at: string;
+}
+
+export interface TelegramConfig {
+  id: string;
+  chat_id: string;
+  bot_token: string;
+  activo: boolean;
+  dia_resumen: number;
+  hora_resumen: number;
+  created_at: string;
+  updated_at: string;
 }
 
 export interface ResumenMensual {

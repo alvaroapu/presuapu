@@ -27,6 +27,8 @@ interface StockProductoRow {
   cantidad: number;
   unidad: string;
   cantidad_minima: number | null;
+  precio_unitario: number | null;
+  proveedor: string | null;
   ubicacion_id: string;
   notas: string | null;
 }
@@ -44,6 +46,8 @@ export function EditStockProductoDialog({ producto, open, onOpenChange }: Props)
   const [cantidad, setCantidad] = useState(String(producto.cantidad));
   const [unidad, setUnidad] = useState(producto.unidad);
   const [cantidadMinima, setCantidadMinima] = useState(String(producto.cantidad_minima || 0));
+  const [precioUnitario, setPrecioUnitario] = useState(String(producto.precio_unitario || 0));
+  const [proveedor, setProveedor] = useState(producto.proveedor || "");
   const [ubicacionId, setUbicacionId] = useState(producto.ubicacion_id);
   const [notas, setNotas] = useState(producto.notas || "");
 
@@ -65,6 +69,8 @@ export function EditStockProductoDialog({ producto, open, onOpenChange }: Props)
         cantidad: Number(cantidad) || 0,
         unidad,
         cantidad_minima: Number(cantidadMinima) || 0,
+        precio_unitario: Number(precioUnitario) || 0,
+        proveedor: proveedor.trim() || null,
         ubicacion_id: ubicacionId,
         notas: notas.trim() || null,
       });
@@ -158,6 +164,25 @@ export function EditStockProductoDialog({ producto, open, onOpenChange }: Props)
                 step="any"
                 value={cantidadMinima}
                 onChange={(e) => setCantidadMinima(e.target.value)}
+              />
+            </div>
+            <div className="space-y-2">
+              <Label>Precio unitario</Label>
+              <Input
+                type="number"
+                step="any"
+                min="0"
+                value={precioUnitario}
+                onChange={(e) => setPrecioUnitario(e.target.value)}
+                placeholder="0.00 €"
+              />
+            </div>
+            <div className="space-y-2">
+              <Label>Proveedor</Label>
+              <Input
+                value={proveedor}
+                onChange={(e) => setProveedor(e.target.value)}
+                placeholder="Nombre del proveedor"
               />
             </div>
           </div>

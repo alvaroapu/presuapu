@@ -10,6 +10,10 @@ import { CreateUbicacionDialog } from "@/components/stock/CreateUbicacionDialog"
 import { EditUbicacionDialog } from "@/components/stock/EditUbicacionDialog";
 import { AddStockProductoDialog } from "@/components/stock/AddStockProductoDialog";
 import { EditStockProductoDialog } from "@/components/stock/EditStockProductoDialog";
+import { ListaCompra } from "@/components/stock/ListaCompra";
+import { TelegramConfigDialog } from "@/components/stock/TelegramConfigDialog";
+import { RegistrarCompraDialog } from "@/components/stock/RegistrarCompraDialog";
+import { ResumenGastos } from "@/components/stock/HistorialCompras";
 import type { StockUbicacion } from "@/hooks/useStock";
 import {
   Warehouse,
@@ -70,6 +74,8 @@ export default function Stock() {
           </div>
         </div>
         <div className="flex gap-2">
+          <TelegramConfigDialog />
+          <RegistrarCompraDialog />
           <AddStockProductoDialog />
           <CreateUbicacionDialog />
         </div>
@@ -120,6 +126,12 @@ export default function Stock() {
           </CardContent>
         </Card>
       </div>
+
+      {/* Lista de Compra */}
+      <ListaCompra />
+
+      {/* Facturación Interna */}
+      <ResumenGastos />
 
       {/* Search */}
       <div className="relative max-w-sm">
@@ -244,6 +256,7 @@ function ProductosTable({
               <th className="p-3 font-medium text-right">Cantidad</th>
               <th className="p-3 font-medium">Unidad</th>
               <th className="p-3 font-medium text-right">Mín.</th>
+              <th className="p-3 font-medium text-right">Precio</th>
               <th className="p-3 font-medium">Estado</th>
               <th className="p-3 font-medium"></th>
             </tr>
@@ -292,6 +305,9 @@ function ProductosTable({
                   <td className="p-3 text-right text-sm text-muted-foreground tabular-nums">
                     {p.cantidad_minima || "—"}
                   </td>
+                  <td className="p-3 text-right text-sm tabular-nums">
+                    {p.precio_unitario ? `${Number(p.precio_unitario).toFixed(2)} €` : "—"}
+                  </td>
                   <td className="p-3">
                     {isLow ? (
                       <Badge variant="destructive" className="text-xs">
@@ -307,16 +323,19 @@ function ProductosTable({
                     )}
                   </td>
                   <td className="p-3">
-                    <Button
-                      size="sm"
-                      variant="ghost"
-                      onClick={(e) => {
-                        e.stopPropagation();
-                        onEdit(p);
-                      }}
-                    >
-                      <Pencil className="w-4 h-4" />
-                    </Button>
+                    <div className="flex gap-1" onClick={(e) => e.stopPropagation()}>
+                      <RegistrarCompraDialog
+                        preselectedProductoId={p.id}
+                        preselectedProductoNombre={p.nombre}
+                      />
+                      <Button
+                        size="sm"
+                        variant="ghost"
+                        onClick={() => onEdit(p)}
+                      >
+                        <Pencil className="w-4 h-4" />
+                      </Button>
+                    </div>
                   </td>
                 </tr>
               );
