@@ -14,6 +14,7 @@ import PresupuestoDuplicar from "@/pages/PresupuestoDuplicar";
 import Facturas from "@/pages/Facturas";
 import FacturaDetalle from "@/pages/FacturaDetalle";
 import FacturaEditar from "@/pages/FacturaEditar";
+import FacturaNueva from "@/pages/FacturaNueva";
 import DashboardFacturas from "@/pages/DashboardFacturas";
 import InformeCobrosPendientes from "@/pages/InformeCobrosPendientes";
 import Clientes from "@/pages/Clientes";
@@ -50,6 +51,7 @@ const App = () => (
             <Route path="presupuestos/:id/editar" element={<PresupuestoEditar />} />
             <Route path="presupuestos/:id/duplicar" element={<PresupuestoDuplicar />} />
             <Route path="facturas" element={<Facturas />} />
+            <Route path="facturas/nueva" element={<FacturaNueva />} />
             <Route path="facturas/dashboard" element={<DashboardFacturas />} />
             <Route path="facturas/cobros-pendientes" element={<InformeCobrosPendientes />} />
             <Route path="facturas/:id" element={<FacturaDetalle />} />

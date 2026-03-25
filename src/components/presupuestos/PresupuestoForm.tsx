@@ -7,13 +7,14 @@ import { Textarea } from "@/components/ui/textarea";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { ArrowLeft, Plus } from "lucide-react";
 import { useEmpresaConfig } from "@/hooks/useEmpresaConfig";
-import { 
-  useCreatePresupuesto, 
+import {
+  useCreatePresupuesto,
   useUpdatePresupuesto,
   useCreatePresupuestoLinea,
   useDeletePresupuestoLinea,
   useRecalcularTotales
 } from "@/hooks/usePresupuestos";
+import { useCreateFactura, useCreateFacturaLinea } from "@/hooks/useFacturas";
 import { useToast } from "@/hooks/use-toast";
 import { formatCurrency } from "@/lib/formatters";
 import { ClienteSelector } from "@/components/presupuestos/ClienteSelector";
@@ -54,6 +55,7 @@ export interface LineaLocal {
 
 interface PresupuestoFormProps {
   mode: 'create' | 'edit' | 'duplicate';
+  target?: 'presupuesto' | 'factura';
   presupuestoId?: string;
   numero: string;
   initialCliente?: Cliente | null;
@@ -68,6 +70,7 @@ interface PresupuestoFormProps {
 
 export function PresupuestoForm({
   mode,
+  target = 'presupuesto',
   presupuestoId,
   numero,
   initialCliente = null,
@@ -87,6 +90,9 @@ export function PresupuestoForm({
   const createLinea = useCreatePresupuestoLinea();
   const deleteLinea = useDeletePresupuestoLinea();
   const recalcularTotales = useRecalcularTotales();
+  const createFactura = useCreateFactura();
+  const createFacturaLinea = useCreateFacturaLinea();
+  const isFactura = target === 'factura';
 
   const [cliente, setCliente] = useState<Cliente | null>(initialCliente);
   const [lineas, setLineas] = useState<LineaLocal[]>(initialLineas);
@@ -185,7 +191,7 @@ export function PresupuestoForm({
         ? (cliente.tipo_documento ? `${cliente.tipo_documento}: ${cliente.numero_documento}` : cliente.numero_documento)
         : null;
 
-      const presupuestoData = {
+      const commonData = {
         numero,
         cliente_id: cliente.id,
         cliente_nombre: cliente.nombre,
@@ -197,7 +203,6 @@ export function PresupuestoForm({
         cliente_ciudad: cliente.ciudad,
         cliente_codigo_postal: cliente.codigo_postal,
         fecha_emision: fechaEmision.toISOString().split('T')[0],
-        fecha_validez: fechaValidez.toISOString().split('T')[0],
         subtotal,
         descuento_tipo: descuentoTipo,
         descuento_valor: descuentoValor,
@@ -206,76 +211,110 @@ export function PresupuestoForm({
         iva_porcentaje: ivaPorcentaje,
         iva_importe: ivaImporte,
         total,
-        estado: asBorrador ? 'borrador' : 'enviado',
         notas,
         notas_internas: notasInternas,
         metodo_pago: metodoPago
       };
 
-      let savedPresupuestoId: string;
+      if (isFactura) {
+        // Create factura directly
+        const facturaData = {
+          ...commonData,
+          presupuesto_id: null,
+          estado: 'emitida',
+        };
 
-      if (mode === 'edit' && presupuestoId) {
-        // Update existing presupuesto
-        await updatePresupuesto.mutateAsync({ id: presupuestoId, ...presupuestoData });
-        savedPresupuestoId = presupuestoId;
+        const created = await createFactura.mutateAsync(facturaData as any);
+        const savedFacturaId = created.id;
 
-        // Delete removed lines
-        for (const lineaId of lineasToDelete) {
-          await deleteLinea.mutateAsync({ id: lineaId, presupuesto_id: presupuestoId });
+        // Create factura lines
+        for (let i = 0; i < lineas.length; i++) {
+          const linea = lineas[i];
+          await createFacturaLinea.mutateAsync({
+            factura_id: savedFacturaId,
+            producto_id: linea.producto_id,
+            producto_nombre: linea.producto_nombre,
+            producto_categoria: linea.producto_categoria,
+            cantidad: linea.cantidad,
+            tipo_cantidad: linea.tipo_cantidad,
+            descripcion: linea.descripcion || null,
+            precio_unitario: linea.precio_unitario,
+            importe: linea.importe,
+            orden: i
+          });
         }
 
-        // Delete all existing lines and recreate (simpler approach for reordering)
-        // First get existing line IDs that weren't already deleted
-        const existingLineIds = initialLineas
-          .filter(l => !lineasToDelete.includes(l.id))
-          .map(l => l.id);
-        
-        for (const lineaId of existingLineIds) {
-          await deleteLinea.mutateAsync({ id: lineaId, presupuesto_id: presupuestoId });
-        }
+        toast({ title: "Factura creada correctamente" });
+        navigate(`/facturas/${savedFacturaId}`);
       } else {
-        // Create new presupuesto
-        const created = await createPresupuesto.mutateAsync(presupuestoData);
-        savedPresupuestoId = created.id;
+        // Presupuesto flow
+        const presupuestoData = {
+          ...commonData,
+          fecha_validez: fechaValidez.toISOString().split('T')[0],
+          estado: asBorrador ? 'borrador' : 'enviado',
+        };
+
+        let savedPresupuestoId: string;
+
+        if (mode === 'edit' && presupuestoId) {
+          await updatePresupuesto.mutateAsync({ id: presupuestoId, ...presupuestoData });
+          savedPresupuestoId = presupuestoId;
+
+          for (const lineaId of lineasToDelete) {
+            await deleteLinea.mutateAsync({ id: lineaId, presupuesto_id: presupuestoId });
+          }
+
+          const existingLineIds = initialLineas
+            .filter(l => !lineasToDelete.includes(l.id))
+            .map(l => l.id);
+
+          for (const lineaId of existingLineIds) {
+            await deleteLinea.mutateAsync({ id: lineaId, presupuesto_id: presupuestoId });
+          }
+        } else {
+          const created = await createPresupuesto.mutateAsync(presupuestoData);
+          savedPresupuestoId = created.id;
+        }
+
+        for (let i = 0; i < lineas.length; i++) {
+          const linea = lineas[i];
+          await createLinea.mutateAsync({
+            presupuesto_id: savedPresupuestoId,
+            producto_id: linea.producto_id,
+            producto_nombre: linea.producto_nombre,
+            producto_categoria: linea.producto_categoria,
+            cantidad: linea.cantidad,
+            tipo_cantidad: linea.tipo_cantidad,
+            descripcion: linea.descripcion || null,
+            precio_unitario: linea.precio_unitario,
+            importe: linea.importe,
+            orden: i
+          });
+        }
+
+        await recalcularTotales.mutateAsync(savedPresupuestoId);
+
+        const actionText = mode === 'edit' ? 'actualizado' : 'creado';
+        toast({ title: `Presupuesto ${actionText} correctamente` });
+        navigate(`/presupuestos/${savedPresupuestoId}`);
       }
-
-      // Create all lines
-      for (let i = 0; i < lineas.length; i++) {
-        const linea = lineas[i];
-        await createLinea.mutateAsync({
-          presupuesto_id: savedPresupuestoId,
-          producto_id: linea.producto_id,
-          producto_nombre: linea.producto_nombre,
-          producto_categoria: linea.producto_categoria,
-          cantidad: linea.cantidad,
-          tipo_cantidad: linea.tipo_cantidad,
-          descripcion: linea.descripcion || null,
-          precio_unitario: linea.precio_unitario,
-          importe: linea.importe,
-          orden: i
-        });
-      }
-
-      // Recalcular totales en el servidor
-      await recalcularTotales.mutateAsync(savedPresupuestoId);
-
-      const actionText = mode === 'edit' ? 'actualizado' : 'creado';
-      toast({ title: `Presupuesto ${actionText} correctamente` });
-      navigate(`/presupuestos/${savedPresupuestoId}`);
     } catch (error) {
       console.error(error);
+      const entity = isFactura ? 'factura' : 'presupuesto';
       const actionText = mode === 'edit' ? 'actualizar' : 'crear';
-      toast({ title: `Error al ${actionText} presupuesto`, variant: "destructive" });
+      toast({ title: `Error al ${actionText} ${entity}`, variant: "destructive" });
     } finally {
       setSaving(false);
     }
   };
 
-  const title = mode === 'edit' 
-    ? 'Editar Presupuesto' 
-    : mode === 'duplicate' 
-      ? 'Duplicar Presupuesto' 
-      : 'Nuevo Presupuesto';
+  const title = isFactura
+    ? 'Nueva Factura'
+    : mode === 'edit'
+      ? 'Editar Presupuesto'
+      : mode === 'duplicate'
+        ? 'Duplicar Presupuesto'
+        : 'Nuevo Presupuesto';
 
   return (
     <div className="space-y-6">
@@ -291,12 +330,20 @@ export function PresupuestoForm({
         </div>
         <div className="flex gap-2">
           <Button variant="outline" onClick={() => navigate(-1)}>Cancelar</Button>
-          <Button variant="secondary" onClick={() => handleSave(true)} disabled={saving}>
-            Guardar Borrador
-          </Button>
-          <Button onClick={() => handleSave(false)} disabled={saving}>
-            {mode === 'edit' ? 'Guardar Cambios' : 'Guardar y Enviar'}
-          </Button>
+          {isFactura ? (
+            <Button onClick={() => handleSave(false)} disabled={saving}>
+              {saving ? 'Creando...' : 'Crear Factura'}
+            </Button>
+          ) : (
+            <>
+              <Button variant="secondary" onClick={() => handleSave(true)} disabled={saving}>
+                Guardar Borrador
+              </Button>
+              <Button onClick={() => handleSave(false)} disabled={saving}>
+                {mode === 'edit' ? 'Guardar Cambios' : 'Guardar y Enviar'}
+              </Button>
+            </>
+          )}
         </div>
       </div>
 

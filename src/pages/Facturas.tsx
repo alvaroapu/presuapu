@@ -3,7 +3,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
 import { Card, CardContent } from "@/components/ui/card";
-import { Search, MoreHorizontal, Eye, Edit, FileDown, Trash2 } from "lucide-react";
+import { Search, MoreHorizontal, Eye, Edit, FileDown, Trash2, Plus } from "lucide-react";
 import { useFacturas, useUpdateFactura, useDeleteFactura } from "@/hooks/useFacturas";
 import { formatCurrency, formatDate, getEstadoFacturaColor, getEstadoFacturaLabel } from "@/lib/formatters";
 import { Skeleton } from "@/components/ui/skeleton";
@@ -102,7 +102,15 @@ export default function Facturas() {
       <div className="space-y-4 md:space-y-6">
         <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
           <h1 className="text-2xl md:text-3xl font-bold">Facturas</h1>
-          <ExportFacturas />
+          <div className="flex gap-2">
+            <Button asChild>
+              <Link to="/facturas/nueva">
+                <Plus className="w-4 h-4 mr-2" />
+                Crear Factura
+              </Link>
+            </Button>
+            <ExportFacturas />
+          </div>
         </div>
 
         {/* Filters */}
