@@ -221,9 +221,29 @@ export interface StockProducto {
   cantidad: number;
   unidad: string;
   cantidad_minima: number;
+  precio_unitario: number;
+  proveedor: string | null;
   notas: string | null;
   created_at: string;
   updated_at: string;
+}
+
+export interface StockCompra {
+  id: string;
+  stock_producto_id: string;
+  cantidad: number;
+  precio_unitario: number;
+  precio_total: number;
+  proveedor: string | null;
+  notas: string | null;
+  fecha: string;
+  created_at: string;
+  updated_at: string;
+}
+
+export interface StockCompraConProducto extends StockCompra {
+  producto_nombre: string;
+  producto_unidad: string;
 }
 
 export interface StockProductoConUbicacion extends StockProducto {

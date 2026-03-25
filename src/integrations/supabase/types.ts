@@ -769,6 +769,53 @@ export type Database = {
         }
         Relationships: []
       }
+      stock_compras: {
+        Row: {
+          id: string
+          stock_producto_id: string
+          cantidad: number
+          precio_unitario: number
+          precio_total: number
+          proveedor: string | null
+          notas: string | null
+          fecha: string
+          created_at: string | null
+          updated_at: string | null
+        }
+        Insert: {
+          id?: string
+          stock_producto_id: string
+          cantidad: number
+          precio_unitario?: number
+          precio_total?: number
+          proveedor?: string | null
+          notas?: string | null
+          fecha?: string
+          created_at?: string | null
+          updated_at?: string | null
+        }
+        Update: {
+          id?: string
+          stock_producto_id?: string
+          cantidad?: number
+          precio_unitario?: number
+          precio_total?: number
+          proveedor?: string | null
+          notas?: string | null
+          fecha?: string
+          created_at?: string | null
+          updated_at?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "stock_compras_stock_producto_id_fkey"
+            columns: ["stock_producto_id"]
+            isOneToOne: false
+            referencedRelation: "stock_productos"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       stock_productos: {
         Row: {
           id: string
@@ -779,6 +826,8 @@ export type Database = {
           cantidad: number
           unidad: string
           cantidad_minima: number | null
+          precio_unitario: number | null
+          proveedor: string | null
           notas: string | null
           created_at: string | null
           updated_at: string | null
@@ -792,6 +841,8 @@ export type Database = {
           cantidad?: number
           unidad?: string
           cantidad_minima?: number | null
+          precio_unitario?: number | null
+          proveedor?: string | null
           notas?: string | null
           created_at?: string | null
           updated_at?: string | null
@@ -805,6 +856,8 @@ export type Database = {
           cantidad?: number
           unidad?: string
           cantidad_minima?: number | null
+          precio_unitario?: number | null
+          proveedor?: string | null
           notas?: string | null
           created_at?: string | null
           updated_at?: string | null

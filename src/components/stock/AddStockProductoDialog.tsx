@@ -34,6 +34,8 @@ export function AddStockProductoDialog({ preselectedUbicacionId }: Props) {
   const [cantidad, setCantidad] = useState("");
   const [unidad, setUnidad] = useState("unidades");
   const [cantidadMinima, setCantidadMinima] = useState("");
+  const [precioUnitario, setPrecioUnitario] = useState("");
+  const [proveedor, setProveedor] = useState("");
   const [ubicacionId, setUbicacionId] = useState(preselectedUbicacionId || "");
   const [notas, setNotas] = useState("");
 
@@ -48,6 +50,8 @@ export function AddStockProductoDialog({ preselectedUbicacionId }: Props) {
     setCantidad("");
     setUnidad("unidades");
     setCantidadMinima("");
+    setPrecioUnitario("");
+    setProveedor("");
     setUbicacionId(preselectedUbicacionId || "");
     setNotas("");
   };
@@ -64,6 +68,8 @@ export function AddStockProductoDialog({ preselectedUbicacionId }: Props) {
         cantidad: Number(cantidad) || 0,
         unidad,
         cantidad_minima: Number(cantidadMinima) || 0,
+        precio_unitario: Number(precioUnitario) || 0,
+        proveedor: proveedor.trim() || null,
         ubicacion_id: ubicacionId,
         notas: notas.trim() || null,
       });
@@ -159,6 +165,25 @@ export function AddStockProductoDialog({ preselectedUbicacionId }: Props) {
                 value={cantidadMinima}
                 onChange={(e) => setCantidadMinima(e.target.value)}
                 placeholder="0"
+              />
+            </div>
+            <div className="space-y-2">
+              <Label>Precio unitario</Label>
+              <Input
+                type="number"
+                step="any"
+                min="0"
+                value={precioUnitario}
+                onChange={(e) => setPrecioUnitario(e.target.value)}
+                placeholder="0.00 €"
+              />
+            </div>
+            <div className="space-y-2">
+              <Label>Proveedor</Label>
+              <Input
+                value={proveedor}
+                onChange={(e) => setProveedor(e.target.value)}
+                placeholder="Nombre del proveedor"
               />
             </div>
           </div>
