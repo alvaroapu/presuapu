@@ -22,7 +22,10 @@ import {
   Search,
   Pencil,
   AlertTriangle,
+  Copy,
 } from "lucide-react";
+import { useCreateStockProducto } from "@/hooks/useStock";
+import { useToast } from "@/hooks/use-toast";
 
 export default function Stock() {
   const { data: ubicaciones, isLoading: loadingUbicaciones } = useStockUbicaciones();
@@ -31,6 +34,28 @@ export default function Stock() {
   const [editingUbicacion, setEditingUbicacion] = useState<StockUbicacion | null>(null);
   const [editingProducto, setEditingProducto] = useState<any>(null);
   const [activeTab, setActiveTab] = useState("todos");
+  const createProducto = useCreateStockProducto();
+  const { toast } = useToast();
+
+  const handleDuplicate = async (p: any) => {
+    try {
+      await createProducto.mutateAsync({
+        nombre: p.nombre + " (copia)",
+        codigo: p.codigo ? p.codigo + "-copia" : null,
+        descripcion: p.descripcion || null,
+        cantidad: p.cantidad,
+        unidad: p.unidad,
+        cantidad_minima: p.cantidad_minima || 0,
+        precio_unitario: p.precio_unitario || 0,
+        proveedor: p.proveedor || null,
+        ubicacion_id: p.ubicacion_id,
+        notas: p.notas || null,
+      });
+      toast({ title: "Producto duplicado correctamente" });
+    } catch {
+      toast({ title: "Error al duplicar", variant: "destructive" });
+    }
+  };
 
   const maquinas = ubicaciones?.filter((u) => u.tipo === "maquina") || [];
   const apartados = ubicaciones?.filter((u) => u.tipo === "apartado") || [];
@@ -169,6 +194,7 @@ export default function Stock() {
             productos={filteredProductos || []}
             showUbicacion
             onEdit={setEditingProducto}
+            onDuplicate={handleDuplicate}
           />
         </TabsContent>
 
@@ -201,6 +227,7 @@ export default function Stock() {
             <ProductosTable
               productos={filteredProductos || []}
               onEdit={setEditingProducto}
+              onDuplicate={handleDuplicate}
             />
           </TabsContent>
         ))}
@@ -229,10 +256,12 @@ function ProductosTable({
   productos,
   showUbicacion = false,
   onEdit,
+  onDuplicate,
 }: {
   productos: any[];
   showUbicacion?: boolean;
   onEdit: (p: any) => void;
+  onDuplicate: (p: any) => void;
 }) {
   if (!productos.length) {
     return (
@@ -328,6 +357,14 @@ function ProductosTable({
                         preselectedProductoId={p.id}
                         preselectedProductoNombre={p.nombre}
                       />
+                      <Button
+                        size="sm"
+                        variant="ghost"
+                        onClick={() => onDuplicate(p)}
+                        title="Duplicar producto"
+                      >
+                        <Copy className="w-4 h-4" />
+                      </Button>
                       <Button
                         size="sm"
                         variant="ghost"
