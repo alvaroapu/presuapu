@@ -16,8 +16,9 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { useUpdateStockProducto, useDeleteStockProducto, useStockUbicaciones } from "@/hooks/useStock";
+import { useUpdateStockProducto, useDeleteStockProducto, useCreateStockProducto, useStockUbicaciones } from "@/hooks/useStock";
 import { useToast } from "@/hooks/use-toast";
+import { Copy } from "lucide-react";
 
 interface StockProductoRow {
   id: string;
@@ -54,6 +55,7 @@ export function EditStockProductoDialog({ producto, open, onOpenChange }: Props)
   const { data: ubicaciones } = useStockUbicaciones();
   const updateProducto = useUpdateStockProducto();
   const deleteProducto = useDeleteStockProducto();
+  const createProducto = useCreateStockProducto();
   const { toast } = useToast();
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -89,6 +91,27 @@ export function EditStockProductoDialog({ producto, open, onOpenChange }: Props)
       onOpenChange(false);
     } catch {
       toast({ title: "Error al eliminar", variant: "destructive" });
+    }
+  };
+
+  const handleDuplicate = async () => {
+    try {
+      await createProducto.mutateAsync({
+        nombre: nombre.trim() + " (copia)",
+        codigo: codigo.trim() ? codigo.trim() + "-copia" : null,
+        descripcion: descripcion.trim() || null,
+        cantidad: Number(cantidad) || 0,
+        unidad,
+        cantidad_minima: Number(cantidadMinima) || 0,
+        precio_unitario: Number(precioUnitario) || 0,
+        proveedor: proveedor.trim() || null,
+        ubicacion_id: ubicacionId,
+        notas: notas.trim() || null,
+      });
+      toast({ title: "Producto duplicado correctamente" });
+      onOpenChange(false);
+    } catch {
+      toast({ title: "Error al duplicar", variant: "destructive" });
     }
   };
 
@@ -214,6 +237,15 @@ export function EditStockProductoDialog({ producto, open, onOpenChange }: Props)
               Eliminar
             </Button>
             <div className="flex gap-2">
+              <Button
+                type="button"
+                variant="outline"
+                onClick={handleDuplicate}
+                disabled={createProducto.isPending}
+              >
+                <Copy className="w-4 h-4 mr-1" />
+                {createProducto.isPending ? "Duplicando..." : "Duplicar"}
+              </Button>
               <Button type="button" variant="outline" onClick={() => onOpenChange(false)}>
                 Cancelar
               </Button>
