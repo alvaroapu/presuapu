@@ -160,17 +160,29 @@ export function useGenerarNumeroPresupuesto() {
 
 export function useCreatePresupuesto() {
   const queryClient = useQueryClient();
-  
+
   return useMutation({
     mutationFn: async (presupuesto: TablesInsert<'presupuestos'>) => {
-      const { data, error } = await supabase
+      let attempt = await supabase
         .from('presupuestos')
         .insert(presupuesto)
         .select()
         .single();
-      
-      if (error) throw error;
-      return data;
+
+      // If the cached numero collides with an existing one (unique violation),
+      // regenerate it via RPC and retry once.
+      if (attempt.error && (attempt.error.code === '23505' || /duplicate key|numero/i.test(attempt.error.message))) {
+        const { data: nuevoNumero, error: rpcError } = await supabase.rpc('generar_numero_presupuesto');
+        if (rpcError) throw rpcError;
+        attempt = await supabase
+          .from('presupuestos')
+          .insert({ ...presupuesto, numero: nuevoNumero as string })
+          .select()
+          .single();
+      }
+
+      if (attempt.error) throw attempt.error;
+      return attempt.data;
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['presupuestos'] });
