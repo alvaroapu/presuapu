@@ -13,6 +13,7 @@ import { EditStockProductoDialog } from "@/components/stock/EditStockProductoDia
 import { ListaCompra } from "@/components/stock/ListaCompra";
 import { TelegramConfigDialog } from "@/components/stock/TelegramConfigDialog";
 import { RegistrarCompraDialog } from "@/components/stock/RegistrarCompraDialog";
+import { RegistrarPedidoDialog } from "@/components/stock/RegistrarPedidoDialog";
 import { ResumenGastos } from "@/components/stock/HistorialCompras";
 import type { StockUbicacion } from "@/hooks/useStock";
 import {
@@ -75,6 +76,7 @@ export default function Stock() {
         </div>
         <div className="flex gap-2">
           <TelegramConfigDialog />
+          <RegistrarPedidoDialog />
           <RegistrarCompraDialog />
           <AddStockProductoDialog />
           <CreateUbicacionDialog />

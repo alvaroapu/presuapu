@@ -120,6 +120,53 @@ export function useCreateStockCompra() {
   });
 }
 
+export function useCreateStockPedido() {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: async (pedido: {
+      items: Array<{
+        stock_producto_id: string;
+        cantidad: number;
+        precio_unitario: number;
+        precio_total: number;
+        proveedor: string | null;
+        notas: string | null;
+        fecha: string;
+      }>;
+    }) => {
+      for (const item of pedido.items) {
+        const { error } = await supabase.from('stock_compras').insert(item);
+        if (error) throw error;
+
+        const { data: producto } = await supabase
+          .from('stock_productos')
+          .select('cantidad')
+          .eq('id', item.stock_producto_id)
+          .single();
+
+        if (producto) {
+          const updates: Record<string, any> = {
+            cantidad: (producto.cantidad || 0) + item.cantidad,
+          };
+          if (item.precio_unitario > 0) updates.precio_unitario = item.precio_unitario;
+          if (item.proveedor) updates.proveedor = item.proveedor;
+
+          await supabase
+            .from('stock_productos')
+            .update(updates)
+            .eq('id', item.stock_producto_id);
+        }
+      }
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['stock-compras'] });
+      queryClient.invalidateQueries({ queryKey: ['stock-compras-resumen'] });
+      queryClient.invalidateQueries({ queryKey: ['stock-productos'] });
+    },
+  });
+}
+
 export function useDeleteStockCompra() {
   const queryClient = useQueryClient();
 
