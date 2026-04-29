@@ -65,16 +65,41 @@ export default function ProductoNuevo() {
     }
 
     try {
-      const producto = await createProducto.mutateAsync(form);
-      
+      // Only send fields that exist in the database
+      const productoData = {
+        categoria_id: form.categoria_id,
+        nombre: form.nombre,
+        codigo: form.codigo || null,
+        descripcion: form.descripcion || null,
+        tipo_calculo: form.tipo_calculo,
+        precio_material: form.precio_material || null,
+        precio_preparacion: form.precio_preparacion || null,
+        precio_montaje: form.precio_montaje || null,
+        precio_base_fijo: form.precio_base_fijo || null,
+        precio_metro_tarifa_1: form.precio_metro_tarifa_1 || null,
+        metros_limite_tarifa_1: form.metros_limite_tarifa_1,
+        precio_metro_tarifa_2: form.precio_metro_tarifa_2 || null,
+        precio_por_unidad: form.precio_por_unidad || null,
+        precio_por_hora: form.precio_por_hora || null,
+        precio_placa_a3: form.precio_placa_a3 || null,
+        precio_placa_a4: form.precio_placa_a4 || null,
+        ...(form.marca && { marca: form.marca }),
+        ...(form.informacion_interna && { informacion_interna: form.informacion_interna }),
+        ...(form.metros_gratis > 0 && { metros_gratis: form.metros_gratis }),
+        ...(form.bonificacion_cada_n_metros > 0 && { bonificacion_cada_n_metros: form.bonificacion_cada_n_metros }),
+      };
+
+      const producto = await createProducto.mutateAsync(productoData);
+
       // Guardar tarifas si está habilitado
       if (usarTarifasVariables && tarifas.length > 0 && producto.id) {
         await saveTarifas.mutateAsync({ productoId: producto.id, tarifas });
       }
-      
+
       toast({ title: "Producto creado" });
       navigate('/catalogo');
-    } catch {
+    } catch (err) {
+      console.error(err);
       toast({ title: "Error al crear producto", variant: "destructive" });
     }
   };
