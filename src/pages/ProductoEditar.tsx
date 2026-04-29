@@ -58,9 +58,9 @@ export default function ProductoEditar() {
         categoria_id: producto.categoria_id,
         nombre: producto.nombre,
         codigo: producto.codigo || '',
-        marca: (producto as any).marca || '',
+        marca: producto.marca || '',
         descripcion: producto.descripcion || '',
-        informacion_interna: (producto as any).informacion_interna || '',
+        informacion_interna: producto.informacion_interna || '',
         tipo_calculo: producto.tipo_calculo,
         precio_material: producto.precio_material || 0,
         precio_preparacion: producto.precio_preparacion || 0,
@@ -74,8 +74,8 @@ export default function ProductoEditar() {
         precio_placa_a3: producto.precio_placa_a3 || 0,
         precio_placa_a4: producto.precio_placa_a4 || 0,
         activo: producto.activo ?? true,
-        metros_gratis: (producto as any).metros_gratis || 0,
-        bonificacion_cada_n_metros: (producto as any).bonificacion_cada_n_metros || 0
+        metros_gratis: producto.metros_gratis || 0,
+        bonificacion_cada_n_metros: producto.bonificacion_cada_n_metros || 0
       });
     }
   }, [producto]);
