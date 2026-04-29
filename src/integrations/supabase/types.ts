@@ -1146,6 +1146,7 @@ export type Database = {
       v_productos_con_categoria: {
         Row: {
           activo: boolean | null
+          bonificacion_cada_n_metros: number | null
           categoria_id: string | null
           categoria_nombre: string | null
           categoria_orden: number | null
@@ -1155,10 +1156,12 @@ export type Database = {
           id: string | null
           informacion_interna: string | null
           marca: string | null
+          metros_gratis: number | null
           metros_limite_tarifa_1: number | null
           nombre: string | null
           precio_base_fijo: number | null
           precio_material: number | null
+          precio_metro_2: number | null
           precio_metro_tarifa_1: number | null
           precio_metro_tarifa_2: number | null
           precio_montaje: number | null
